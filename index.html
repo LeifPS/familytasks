@@ -1461,6 +1461,31 @@
             <button class="btn btn-accent" style="width: 100%; margin-top: 16px;" onclick="joinFamily()">
                 🚀 Beitreten
             </button>
+
+            <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--bg-elevated);">
+                <p style="color: var(--text-secondary); margin-bottom: 12px;">Bereits Mitglied?</p>
+                <button class="btn btn-ghost" style="display: block; margin: 0 auto;" onclick="showScreen('childLoginScreen')">
+                    🔑 Mit Code anmelden
+                </button>
+            </div>
+        </div>
+
+        <!-- Child Login Screen -->
+        <div class="screen" id="childLoginScreen">
+            <div class="header">
+                <button class="btn btn-ghost" onclick="showScreen('welcomeScreen')">← Zurück</button>
+            </div>
+            <h1 style="font-family: 'Fredoka', sans-serif; font-size: 28px; margin-bottom: 8px;">Anmelden 🔑</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 32px;">Gib deinen persönlichen Anmeldecode ein</p>
+            
+            <div class="input-group">
+                <label class="input-label">Dein Anmeldecode</label>
+                <input type="text" class="input-field" id="childLoginCodeInput" placeholder="ABC123" style="text-transform: uppercase; text-align: center; font-size: 24px; letter-spacing: 4px;">
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" onclick="loginChildWithCode()">
+                🔓 Anmelden
+            </button>
         </div>
 
         <!-- Child Dashboard -->
@@ -1542,6 +1567,10 @@
                 <span class="section-title"><span class="section-icon">🏆</span> Deine Erfolge</span>
             </div>
             <div id="achievementsList"></div>
+
+            <button class="btn btn-ghost" style="width: 100%; margin-top: 24px; color: var(--danger);" onclick="logout()">
+                🚪 Abmelden
+            </button>
         </div>
 
         <!-- History/Verlauf Screen -->
@@ -1716,15 +1745,15 @@
         <nav class="bottom-nav" id="bottomNav" style="display: none;">
             <button class="nav-item active" data-screen="home" onclick="navigateTo('home')">
                 <span class="nav-icon">🏠</span>
-                <span class="nav-label">Home</span>
+                <span class="nav-label">Start</span>
             </button>
             <button class="nav-item" data-screen="history" onclick="navigateTo('history')">
                 <span class="nav-icon">📜</span>
                 <span class="nav-label">Verlauf</span>
             </button>
             <button class="nav-item" data-screen="profile" onclick="navigateTo('profile')">
-                <span class="nav-icon">👤</span>
-                <span class="nav-label">Profil</span>
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Einstellungen</span>
             </button>
         </nav>
 
@@ -1802,7 +1831,7 @@
                     // Show appropriate dashboard
                     if (currentUser.role === 'parent') {
                         showScreen('parentDashboard');
-                        document.getElementById('bottomNav').style.display = 'none';
+                        document.getElementById('bottomNav').style.display = 'flex';
                     } else {
                         showScreen('childDashboard');
                         document.getElementById('bottomNav').style.display = 'flex';
@@ -2317,6 +2346,11 @@
                         <div class="member-info">
                             <div class="member-name">${member.name}</div>
                             <div class="member-role">${member.role === 'parent' ? '👨‍👩‍👧 Elternteil' : '👧 Kind'}</div>
+                            ${member.role === 'child' && member.loginCode ? `
+                                <div style="font-size: 11px; color: var(--accent-tertiary); margin-top: 4px;">
+                                    🔑 Code: <strong>${member.loginCode}</strong>
+                                </div>
+                            ` : ''}
                         </div>
                         ${member.id !== currentUser.id && member.role !== 'parent' ? `
                             <button class="btn btn-ghost btn-small" style="color: var(--danger);" onclick="removeMember('${member.id}')">Entfernen</button>
@@ -2688,11 +2722,13 @@
 
                 const familyDoc = familySnapshot.docs[0];
                 const userId = generateId();
+                const loginCode = role === 'child' ? generateCode() : null;
 
                 // Add member
                 await db.collection('families').doc(familyDoc.id).collection('members').doc(userId).set({
                     name,
                     role,
+                    loginCode,
                     points: 0,
                     streak: 0,
                     achievements: [],
@@ -2711,6 +2747,11 @@
 
                 await loadUserData();
                 showToast(`Willkommen in der Familie! ${role === 'parent' ? '👨‍👩‍👧' : '🎉'}`);
+                
+                // Show login code for new child
+                if (role === 'child' && loginCode) {
+                    showChildLoginCode(loginCode, name);
+                }
             } catch (error) {
                 console.error('Error joining family:', error);
                 showToast('Fehler beim Beitreten');
@@ -2838,6 +2879,20 @@
                         }
                         break;
                 }
+            } else {
+                // Parent navigation
+                switch (screen) {
+                    case 'home':
+                        showScreen('parentDashboard');
+                        break;
+                    case 'history':
+                        showScreen('historyScreen');
+                        renderHistoryTimeline();
+                        break;
+                    case 'profile':
+                        showScreen('parentSettingsScreen');
+                        break;
+                }
             }
         }
 
@@ -2886,6 +2941,87 @@
                 code += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return code;
+        }
+
+        // Show Child Login Code after registration
+        function showChildLoginCode(code, name) {
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="confirm-dialog" style="max-width: 100%;">
+                    <div class="confirm-icon">🔑</div>
+                    <div class="confirm-title">Wichtig: Dein Anmeldecode!</div>
+                    <div class="confirm-message">
+                        <strong>${name}</strong>, merke dir diesen Code gut!<br><br>
+                        Mit diesem Code kannst du dich später wieder anmelden.<br><br>
+                        <div class="invite-code-box" style="font-size: 32px; letter-spacing: 6px;">
+                            ${code}
+                        </div>
+                        <div style="margin-top: 16px; font-size: 13px; color: var(--text-muted);">
+                            Eltern: Notieren Sie diesen Code für Ihr Kind!
+                        </div>
+                    </div>
+                    <div class="confirm-buttons">
+                        <button class="btn btn-primary" onclick="closeModal(); showToast('Willkommen! 🎉');">Verstanden</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        // Login child with code
+        async function loginChildWithCode() {
+            const code = document.getElementById('childLoginCodeInput').value.trim().toUpperCase();
+            
+            if (!code || code.length !== 6) {
+                showToast('Bitte gib einen gültigen Code ein');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                // Search all families for member with this login code
+                const familiesSnapshot = await db.collection('families').get();
+                let foundMember = null;
+                let foundFamilyId = null;
+
+                for (const familyDoc of familiesSnapshot.docs) {
+                    const membersSnapshot = await db.collection('families')
+                        .doc(familyDoc.id)
+                        .collection('members')
+                        .where('loginCode', '==', code)
+                        .where('role', '==', 'child')
+                        .get();
+                    
+                    if (!membersSnapshot.empty) {
+                        foundMember = membersSnapshot.docs[0];
+                        foundFamilyId = familyDoc.id;
+                        break;
+                    }
+                }
+
+                if (!foundMember) {
+                    showToast('Ungültiger Anmeldecode');
+                    showLoading(false);
+                    return;
+                }
+
+                // Save to localStorage
+                currentUser = {
+                    id: foundMember.id,
+                    familyId: foundFamilyId,
+                    role: 'child'
+                };
+                localStorage.setItem('familyTasks_user', JSON.stringify(currentUser));
+
+                await loadUserData();
+                showToast(`Willkommen zurück, ${foundMember.data().name}! 👋`);
+            } catch (error) {
+                console.error('Error logging in:', error);
+                showToast('Fehler beim Anmelden');
+            }
+
+            showLoading(false);
         }
 
         // Generate Random ID
