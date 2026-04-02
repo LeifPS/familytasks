@@ -2784,13 +2784,47 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Convert to base64 (simplified - in production use Firebase Storage)
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const base64 = e.target.result;
+            // Resize and compress image before uploading
+            const maxWidth = 200;
+            const maxHeight = 200;
+            const quality = 0.7;
+
+            const img = new Image();
+            img.onload = async () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Calculate new dimensions
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert to compressed base64
+                const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+
+                // Check size (Firestore limit ~1MB)
+                if (compressedBase64.length > 900000) {
+                    showToast('Bild zu groß - bitte kleineres Bild wählen');
+                    return;
+                }
+
                 try {
                     await db.collection('families').doc(currentUser.familyId).collection('members').doc(currentUser.id).update({
-                        avatar: base64
+                        avatar: compressedBase64
                     });
                     showToast('Profilbild aktualisiert!');
                 } catch (error) {
@@ -2798,7 +2832,12 @@
                     showToast('Fehler beim Hochladen');
                 }
             };
-            reader.readAsDataURL(file);
+
+            img.onerror = () => {
+                showToast('Fehler beim Laden des Bildes');
+            };
+
+            img.src = URL.createObjectURL(file);
         }
 
         // Remove Member
