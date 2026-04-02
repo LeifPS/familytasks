@@ -1280,21 +1280,31 @@
         .achievement-card.hidden {
             background: var(--bg-secondary);
             border: 2px dashed var(--bg-elevated);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .achievement-card.hidden .achievement-icon {
-            filter: blur(8px);
-            opacity: 0.3;
+            filter: blur(6px);
+            opacity: 0.4;
+            font-size: 28px;
+            margin-bottom: 8px;
         }
 
         .achievement-card.hidden .achievement-title {
             color: var(--text-muted);
             font-style: italic;
+            font-size: 14px;
+            margin-bottom: 6px;
         }
 
         .achievement-card.hidden .achievement-desc {
             color: var(--text-muted);
             font-size: 11px;
+            line-height: 1.4;
+            padding: 0 4px;
         }
 
         .achievement-icon {
@@ -3131,65 +3141,86 @@
             showScreen('welcomeScreen');
         }
 
-        // Navigation
+        // Navigation with debounce to prevent double-clicks
+        let navigating = false;
         function navigateTo(screen) {
-            // Immediate visual feedback
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.dataset.screen === screen) {
-                    item.classList.add('active');
-                }
-            });
+            if (navigating) return;
+            if (!currentUser) return;
+            
+            navigating = true;
+            
+            try {
+                // Immediate visual feedback
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.screen === screen) {
+                        item.classList.add('active');
+                    }
+                });
 
-            if (currentUser.role === 'child') {
-                switch (screen) {
-                    case 'home':
-                        showScreen('childDashboard');
-                        break;
-                    case 'history':
-                        showScreen('historyScreen');
-                        // Show loading immediately
-                        document.getElementById('historyTimeline').innerHTML = '<div class="loader"></div>';
-                        // Use requestAnimationFrame for smoother transition
-                        requestAnimationFrame(() => {
-                            setTimeout(() => renderHistoryTimeline(), 50);
-                        });
-                        break;
-                    case 'profile':
-                        showScreen('childProfileScreen');
-                        // Pre-fill profile form
-                        const member = familyMembers.find(m => m.id === currentUser.id);
-                        if (member) {
-                            document.getElementById('profileNameInput').value = member.name;
-                            const profileAvatar = document.getElementById('profileAvatar');
-                            if (member.avatar) {
-                                profileAvatar.innerHTML = `<img src="${member.avatar}" alt="">`;
-                            } else {
-                                profileAvatar.textContent = member.name.charAt(0).toUpperCase();
+                if (currentUser.role === 'child') {
+                    switch (screen) {
+                        case 'home':
+                            showScreen('childDashboard');
+                            break;
+                        case 'history':
+                            showScreen('historyScreen');
+                            // Show loading immediately
+                            const historyTimeline = document.getElementById('historyTimeline');
+                            if (historyTimeline) {
+                                historyTimeline.innerHTML = '<div class="loader"></div>';
                             }
-                        }
-                        break;
+                            // Use requestAnimationFrame for smoother transition
+                            requestAnimationFrame(() => {
+                                setTimeout(() => renderHistoryTimeline(), 50);
+                            });
+                            break;
+                        case 'profile':
+                            showScreen('childProfileScreen');
+                            // Pre-fill profile form
+                            const member = familyMembers.find(m => m.id === currentUser.id);
+                            if (member) {
+                                document.getElementById('profileNameInput').value = member.name;
+                                const profileAvatar = document.getElementById('profileAvatar');
+                                if (member.avatar) {
+                                    profileAvatar.innerHTML = `<img src="${member.avatar}" alt="">`;
+                                } else {
+                                    profileAvatar.textContent = member.name.charAt(0).toUpperCase();
+                                }
+                            }
+                            break;
+                    }
+                } else {
+                    // Parent navigation
+                    switch (screen) {
+                        case 'home':
+                            showScreen('parentDashboard');
+                            break;
+                        case 'history':
+                            showScreen('historyScreen');
+                            // Show loading immediately
+                            const historyTimeline = document.getElementById('historyTimeline');
+                            if (historyTimeline) {
+                                historyTimeline.innerHTML = '<div class="loader"></div>';
+                            }
+                            // Use requestAnimationFrame for smoother transition
+                            requestAnimationFrame(() => {
+                                setTimeout(() => renderHistoryTimeline(), 50);
+                            });
+                            break;
+                        case 'profile':
+                            showScreen('parentSettingsScreen');
+                            break;
+                    }
                 }
-            } else {
-                // Parent navigation
-                switch (screen) {
-                    case 'home':
-                        showScreen('parentDashboard');
-                        break;
-                    case 'history':
-                        showScreen('historyScreen');
-                        // Show loading immediately
-                        document.getElementById('historyTimeline').innerHTML = '<div class="loader"></div>';
-                        // Use requestAnimationFrame for smoother transition
-                        requestAnimationFrame(() => {
-                            setTimeout(() => renderHistoryTimeline(), 50);
-                        });
-                        break;
-                    case 'profile':
-                        showScreen('parentSettingsScreen');
-                        break;
-                }
+            } catch (error) {
+                console.error('Navigation error:', error);
             }
+            
+            // Reset navigation lock after animation
+            setTimeout(() => {
+                navigating = false;
+            }, 300);
         }
 
         // Screen Management
