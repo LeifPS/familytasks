@@ -1822,6 +1822,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
             updateDateDisplays();
+            
+            // Setup navigation event listeners
+            document.getElementById('navHome')?.addEventListener('click', () => navigateTo('home'));
+            document.getElementById('navHistory')?.addEventListener('click', () => navigateTo('history'));
+            document.getElementById('navProfile')?.addEventListener('click', () => navigateTo('profile'));
         });
 
         // Check Authentication
