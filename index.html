@@ -837,11 +837,14 @@
 
         .confirm-buttons {
             display: flex;
+            justify-content: center;
             gap: 12px;
+            width: 100%;
         }
 
         .confirm-buttons .btn {
             flex: 1;
+            max-width: 140px;
         }
 
         /* Bottom Navigation */
@@ -1202,6 +1205,117 @@
             font-size: 14px;
             cursor: pointer;
             box-shadow: var(--shadow-soft);
+        }
+
+        /* Enhanced Achievement Styles */
+        .achievements-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .achievement-category {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .achievement-category-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .achievement-card {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-elevated));
+            border-radius: var(--radius-md);
+            padding: 16px 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .achievement-card.unlocked {
+            background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(78,205,196,0.1));
+            border-color: var(--accent-secondary);
+            box-shadow: 0 4px 15px rgba(78,205,196,0.2);
+        }
+
+        .achievement-card.unlocked::before {
+            content: '✓';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--success);
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .achievement-card.locked {
+            opacity: 0.6;
+            filter: grayscale(0.5);
+        }
+
+        .achievement-card.hidden {
+            background: var(--bg-secondary);
+            border: 2px dashed var(--bg-elevated);
+        }
+
+        .achievement-card.hidden .achievement-icon {
+            filter: blur(8px);
+            opacity: 0.3;
+        }
+
+        .achievement-card.hidden .achievement-title {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .achievement-card.hidden .achievement-desc {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .achievement-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .achievement-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .achievement-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.3;
         }
 
         /* Confetti Effect */
@@ -1806,16 +1920,53 @@
         let tasks = [];
         let unsubscribers = [];
 
-        // Achievements Definition
+        // Achievements Definition - Extended with many achievements
+        // hidden: true = requirements hidden until unlocked
         const achievements = {
-            firstTask: { icon: '🌟', title: 'Erster Schritt', desc: 'Erste Aufgabe erledigt' },
-            streak3: { icon: '🔥', title: 'Auf Feuer', desc: '3 Tage Streak' },
-            streak7: { icon: '💪', title: 'Wochenkrieger', desc: '7 Tage Streak' },
-            streak30: { icon: '🏆', title: 'Monatsheld', desc: '30 Tage Streak' },
-            points100: { icon: '💯', title: 'Punktesammler', desc: '100 Punkte erreicht' },
-            points500: { icon: '🌈', title: 'Superstar', desc: '500 Punkte erreicht' },
-            tasks10: { icon: '📚', title: 'Fleißig', desc: '10 Aufgaben erledigt' },
-            tasks50: { icon: '🚀', title: 'Aufgabenmeister', desc: '50 Aufgaben erledigt' }
+            // Streak Achievements
+            streak3: { icon: '🔥', title: 'Auf Feuer', desc: '3 Tage Streak', category: 'streak', hidden: false },
+            streak7: { icon: '💪', title: 'Wochenkrieger', desc: '7 Tage Streak', category: 'streak', hidden: false },
+            streak14: { icon: '🎯', title: 'Halbmonat', desc: '14 Tage Streak', category: 'streak', hidden: true },
+            streak30: { icon: '🏆', title: 'Monatsheld', desc: '30 Tage Streak', category: 'streak', hidden: true },
+            streak50: { icon: '👑', title: 'Legende', desc: '50 Tage Streak', category: 'streak', hidden: true },
+            streak100: { icon: '💎', title: 'Unaufhaltsam', desc: '100 Tage Streak', category: 'streak', hidden: true },
+            
+            // Task Count Achievements
+            firstTask: { icon: '🌟', title: 'Erster Schritt', desc: 'Erste Aufgabe erledigt', category: 'tasks', hidden: false },
+            tasks5: { icon: '📝', title: 'Gewöhnung', desc: '5 Aufgaben erledigt', category: 'tasks', hidden: false },
+            tasks10: { icon: '📚', title: 'Fleißig', desc: '10 Aufgaben erledigt', category: 'tasks', hidden: false },
+            tasks25: { icon: '📖', title: 'Routine', desc: '25 Aufgaben erledigt', category: 'tasks', hidden: false },
+            tasks50: { icon: '🚀', title: 'Aufgabenmeister', desc: '50 Aufgaben erledigt', category: 'tasks', hidden: true },
+            tasks100: { icon: '⭐', title: 'Centurio', desc: '100 Aufgaben erledigt', category: 'tasks', hidden: true },
+            tasks250: { icon: '🔱', title: 'Titan', desc: '250 Aufgaben erledigt', category: 'tasks', hidden: true },
+            tasks500: { icon: '🌟', title: 'Göttlich', desc: '500 Aufgaben erledigt', category: 'tasks', hidden: true },
+            
+            // Points Achievements
+            points50: { icon: '🥉', title: 'Anfänger', desc: '50 Punkte erreicht', category: 'points', hidden: false },
+            points100: { icon: '💯', title: 'Punktesammler', desc: '100 Punkte erreicht', category: 'points', hidden: false },
+            points250: { icon: '🥈', title: 'Sammler', desc: '250 Punkte erreicht', category: 'points', hidden: false },
+            points500: { icon: '🌈', title: 'Superstar', desc: '500 Punkte erreicht', category: 'points', hidden: true },
+            points1000: { icon: '💰', title: 'Reichtum', desc: '1000 Punkte erreicht', category: 'points', hidden: true },
+            points2500: { icon: '👑', title: 'Millionär', desc: '2500 Punkte erreicht', category: 'points', hidden: true },
+            points5000: { icon: '💎', title: 'Milliardär', desc: '5000 Punkte erreicht', category: 'points', hidden: true },
+            
+            // Daily Special Achievements
+            earlyBird: { icon: '🐦', title: 'Früher Vogel', desc: 'Vor 8 Uhr eine Aufgabe erledigt', category: 'special', hidden: true },
+            nightOwl: { icon: '🦉', title: 'Nachteule', desc: 'Nach 20 Uhr eine Aufgabe erledigt', category: 'special', hidden: true },
+            perfectWeek: { icon: '📅', title: 'Perfekte Woche', desc: '7 Tage in Folge alle Aufgaben erledigt', category: 'special', hidden: true },
+            speedDemon: { icon: '⚡', title: 'Blitzschnell', desc: '3 Aufgaben in unter 1 Stunde erledigt', category: 'special', hidden: true },
+            comeback: { icon: '🔄', title: 'Comeback', desc: 'Nach 3 Tagen Pause wieder zurück', category: 'special', hidden: true },
+            weekendWarrior: { icon: '🎉', title: 'Wochenendkrieger', desc: 'Samstag und Sonntag alle Aufgaben erledigt', category: 'special', hidden: true },
+            allRounder: { icon: '🎨', title: 'Alleskönner', desc: 'Alle Aufgabentypen erledigt', category: 'special', hidden: true },
+            
+            // Consistency Achievements
+            consistent3: { icon: '📊', title: 'Beständig', desc: '3 Wochen jeden Tag Aufgaben erledigt', category: 'special', hidden: true },
+            consistentMonth: { icon: '🏅', title: 'Monatssieger', desc: 'Ganzen Monat jeden Tag Aufgaben erledigt', category: 'special', hidden: true },
+            
+            // Secret Achievements (always hidden until unlocked)
+            secretCollector: { icon: '🕵️', title: 'Sammler', desc: '???', category: 'secret', hidden: true, secret: true },
+            secretMaster: { icon: '🔮', title: 'Meister', desc: '???', category: 'secret', hidden: true, secret: true },
+            secretLegend: { icon: '🌌', title: 'Legende', desc: '???', category: 'secret', hidden: true, secret: true }
         };
 
         // Initialize App
@@ -2021,24 +2172,67 @@
                 container.innerHTML = '';
             }
 
-            // Achievement list on profile
+            // Achievement list on profile - organized by categories with hidden/locked states
             const achievementsList = document.getElementById('achievementsList');
             if (achievementsList) {
-                achievementsList.innerHTML = Object.entries(achievements).map(([key, ach]) => {
-                    const unlocked = userAchievements.includes(key);
-                    return `
-                        <div class="card" style="opacity: ${unlocked ? 1 : 0.4}">
-                            <div style="display: flex; align-items: center; gap: 14px;">
-                                <div style="font-size: 36px;">${ach.icon}</div>
-                                <div>
-                                    <div style="font-weight: 700;">${ach.title}</div>
-                                    <div style="font-size: 13px; color: var(--text-secondary);">${ach.desc}</div>
-                                </div>
-                                ${unlocked ? '<span style="margin-left: auto; color: var(--success);">✓</span>' : ''}
+                // Group achievements by category
+                const categories = {
+                    streak: { title: '🔥 Streaks', icon: '🔥' },
+                    tasks: { title: '📝 Aufgaben', icon: '📝' },
+                    points: { title: '✦ Punkte', icon: '✦' },
+                    special: { title: '⭐ Besonders', icon: '⭐' },
+                    secret: { title: '🔒 Geheim', icon: '🔒' }
+                };
+                
+                const groupedAchievements = {};
+                Object.entries(achievements).forEach(([key, ach]) => {
+                    if (!groupedAchievements[ach.category]) {
+                        groupedAchievements[ach.category] = [];
+                    }
+                    groupedAchievements[ach.category].push({ key, ...ach });
+                });
+                
+                let html = '<div class="achievements-container">';
+                
+                Object.entries(categories).forEach(([catKey, catInfo]) => {
+                    if (!groupedAchievements[catKey]) return;
+                    
+                    html += `
+                        <div class="achievement-category">
+                            <div class="achievement-category-title">
+                                ${catInfo.icon} ${catInfo.title}
                             </div>
-                        </div>
+                            <div class="achievement-grid">
                     `;
-                }).join('');
+                    
+                    groupedAchievements[catKey].forEach(ach => {
+                        const unlocked = userAchievements.includes(ach.key);
+                        const isHidden = ach.hidden && !unlocked;
+                        const isSecret = ach.secret;
+                        
+                        let cardClass = 'achievement-card';
+                        if (unlocked) cardClass += ' unlocked';
+                        else if (isHidden) cardClass += ' hidden';
+                        else cardClass += ' locked';
+                        
+                        const displayIcon = isHidden ? '❓' : ach.icon;
+                        const displayTitle = isHidden ? (isSecret ? '???' : 'Versteckt') : ach.title;
+                        const displayDesc = isHidden ? 'Schalte es frei um zu sehen!' : ach.desc;
+                        
+                        html += `
+                            <div class="${cardClass}" data-achievement="${ach.key}">
+                                <span class="achievement-icon">${displayIcon}</span>
+                                <div class="achievement-title">${displayTitle}</div>
+                                <div class="achievement-desc">${displayDesc}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div></div>';
+                });
+                
+                html += '</div>';
+                achievementsList.innerHTML = html;
             }
         }
 
@@ -2105,31 +2299,55 @@
                     const memberData = memberDoc.data();
                     const newPoints = (memberData.points || 0) + (task.points || 1);
                     const newTasksCompleted = (memberData.tasksCompleted || 0) + 1;
+                    const streak = memberData.streak || 0;
 
                     const updates = { 
                         points: newPoints,
                         tasksCompleted: newTasksCompleted
                     };
 
-                    // Check for new achievements
+                    // Check for new achievements - comprehensive achievement checking
                     const currentAchievements = memberData.achievements || [];
                     const newAchievements = [...currentAchievements];
+                    
+                    // Helper function to add achievement if not already unlocked
+                    const addAchievement = (key, condition) => {
+                        if (condition && !currentAchievements.includes(key)) {
+                            newAchievements.push(key);
+                        }
+                    };
 
-                    if (newTasksCompleted === 1 && !currentAchievements.includes('firstTask')) {
-                        newAchievements.push('firstTask');
-                    }
-                    if (newTasksCompleted >= 10 && !currentAchievements.includes('tasks10')) {
-                        newAchievements.push('tasks10');
-                    }
-                    if (newTasksCompleted >= 50 && !currentAchievements.includes('tasks50')) {
-                        newAchievements.push('tasks50');
-                    }
-                    if (newPoints >= 100 && !currentAchievements.includes('points100')) {
-                        newAchievements.push('points100');
-                    }
-                    if (newPoints >= 500 && !currentAchievements.includes('points500')) {
-                        newAchievements.push('points500');
-                    }
+                    // Task count achievements
+                    addAchievement('firstTask', newTasksCompleted >= 1);
+                    addAchievement('tasks5', newTasksCompleted >= 5);
+                    addAchievement('tasks10', newTasksCompleted >= 10);
+                    addAchievement('tasks25', newTasksCompleted >= 25);
+                    addAchievement('tasks50', newTasksCompleted >= 50);
+                    addAchievement('tasks100', newTasksCompleted >= 100);
+                    addAchievement('tasks250', newTasksCompleted >= 250);
+                    addAchievement('tasks500', newTasksCompleted >= 500);
+
+                    // Points achievements
+                    addAchievement('points50', newPoints >= 50);
+                    addAchievement('points100', newPoints >= 100);
+                    addAchievement('points250', newPoints >= 250);
+                    addAchievement('points500', newPoints >= 500);
+                    addAchievement('points1000', newPoints >= 1000);
+                    addAchievement('points2500', newPoints >= 2500);
+                    addAchievement('points5000', newPoints >= 5000);
+
+                    // Streak achievements (checked on finalize)
+                    addAchievement('streak3', streak >= 3);
+                    addAchievement('streak7', streak >= 7);
+                    addAchievement('streak14', streak >= 14);
+                    addAchievement('streak30', streak >= 30);
+                    addAchievement('streak50', streak >= 50);
+                    addAchievement('streak100', streak >= 100);
+
+                    // Special achievements
+                    const hour = new Date().getHours();
+                    addAchievement('earlyBird', hour < 8);
+                    addAchievement('nightOwl', hour >= 20);
 
                     if (newAchievements.length > currentAchievements.length) {
                         updates.achievements = newAchievements;
@@ -2202,18 +2420,22 @@
                 const currentAchievements = memberData.achievements || [];
                 const newAchievements = [...currentAchievements];
 
-                if (streak >= 3 && !currentAchievements.includes('streak3')) {
-                    newAchievements.push('streak3');
-                }
-                if (streak >= 7 && !currentAchievements.includes('streak7')) {
-                    newAchievements.push('streak7');
-                }
-                if (streak >= 30 && !currentAchievements.includes('streak30')) {
-                    newAchievements.push('streak30');
-                }
+                const addStreakAchievement = (key, condition) => {
+                    if (condition && !currentAchievements.includes(key)) {
+                        newAchievements.push(key);
+                    }
+                };
+
+                addStreakAchievement('streak3', streak >= 3);
+                addStreakAchievement('streak7', streak >= 7);
+                addStreakAchievement('streak14', streak >= 14);
+                addStreakAchievement('streak30', streak >= 30);
+                addStreakAchievement('streak50', streak >= 50);
+                addStreakAchievement('streak100', streak >= 100);
 
                 if (newAchievements.length > currentAchievements.length) {
                     updates.achievements = newAchievements;
+                    showToast('🏆 Neuer Streak-Erfolg!');
                 }
 
                 await memberRef.update(updates);
@@ -3023,15 +3245,13 @@
             modalBody.innerHTML = `
                 <div class="confirm-dialog" style="max-width: 100%;">
                     <div class="confirm-icon">🔑</div>
-                    <div class="confirm-title">Wichtig: Dein Anmeldecode!</div>
+                    <div class="confirm-title">Anmeldecode</div>
                     <div class="confirm-message">
-                        <strong>${name}</strong>, merke dir diesen Code gut!<br><br>
                         Mit diesem Code kannst du dich später wieder anmelden.<br><br>
                         <div class="invite-code-box" style="font-size: 32px; letter-spacing: 6px;">
                             ${code}
                         </div>
                         <div style="margin-top: 16px; font-size: 13px; color: var(--text-muted);">
-                            Eltern: Notieren Sie diesen Code für Ihr Kind!
                         </div>
                     </div>
                     <div class="confirm-buttons">
