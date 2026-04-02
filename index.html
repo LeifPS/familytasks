@@ -1083,6 +1083,8 @@
             background: white;
             color: var(--success);
             font-weight: 800;
+            display: block;
+            margin: 0 auto;
         }
 
         .finalize-btn:hover {
@@ -1255,7 +1257,7 @@
 
         .timeline-item {
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 48px;
             padding-left: 20px;
         }
 
@@ -1285,7 +1287,7 @@
             font-size: 12px;
             color: var(--text-muted);
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -1295,12 +1297,20 @@
             border-radius: var(--radius-md);
             padding: 14px 16px;
             box-shadow: var(--shadow-soft);
+            margin-bottom: 8px;
         }
 
         .timeline-title {
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 4px;
+        }
+
+        .timeline-member {
+            font-size: 12px;
+            color: var(--accent-secondary);
+            margin-bottom: 4px;
+            font-weight: 600;
         }
 
         .timeline-desc {
@@ -1753,13 +1763,13 @@
 
         <!-- Bottom Navigation -->
         <nav class="bottom-nav" id="bottomNav" style="display: none;">
-            <button class="nav-item active" data-screen="home" onclick="navigateTo('home')">
+            <button class="nav-item active" data-screen="home" id="navHome">
                 <span class="nav-icon">🏠</span>
             </button>
-            <button class="nav-item" data-screen="history" onclick="navigateTo('history')">
+            <button class="nav-item" data-screen="history" id="navHistory">
                 <span class="nav-icon">📜</span>
             </button>
-            <button class="nav-item" data-screen="profile" onclick="navigateTo('profile')">
+            <button class="nav-item" data-screen="profile" id="navProfile">
                 <span class="nav-icon">⚙️</span>
             </button>
         </nav>
@@ -2279,7 +2289,9 @@
                         <div class="empty-icon">📝</div>
                         <div class="empty-title">Keine Aufgaben</div>
                         <div class="empty-desc">Erstelle Aufgaben für deine Kinder</div>
-                        <button class="btn btn-primary btn-small" style="display: block; margin: 0 auto;" onclick="showAddTaskModal()">+ Aufgabe erstellen</button>
+                        <div style="display: flex; justify-content: center;">
+                            <button class="btn btn-primary btn-small" onclick="showAddTaskModal()">+ Aufgabe erstellen</button>
+                        </div>
                     </div>
                 `;
             } else {
@@ -2894,6 +2906,7 @@
 
         // Navigation
         function navigateTo(screen) {
+            // Immediate visual feedback
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
                 if (item.dataset.screen === screen) {
@@ -2908,7 +2921,12 @@
                         break;
                     case 'history':
                         showScreen('historyScreen');
-                        renderHistoryTimeline();
+                        // Show loading immediately
+                        document.getElementById('historyTimeline').innerHTML = '<div class="loader"></div>';
+                        // Use requestAnimationFrame for smoother transition
+                        requestAnimationFrame(() => {
+                            setTimeout(() => renderHistoryTimeline(), 50);
+                        });
                         break;
                     case 'profile':
                         showScreen('childProfileScreen');
@@ -2933,7 +2951,12 @@
                         break;
                     case 'history':
                         showScreen('historyScreen');
-                        renderHistoryTimeline();
+                        // Show loading immediately
+                        document.getElementById('historyTimeline').innerHTML = '<div class="loader"></div>';
+                        // Use requestAnimationFrame for smoother transition
+                        requestAnimationFrame(() => {
+                            setTimeout(() => renderHistoryTimeline(), 50);
+                        });
                         break;
                     case 'profile':
                         showScreen('parentSettingsScreen');
@@ -3102,53 +3125,84 @@
         // Render History Timeline
         function renderHistoryTimeline() {
             const timeline = document.getElementById('historyTimeline');
-            const member = familyMembers.find(m => m.id === currentUser.id);
             
-            if (!member) {
-                timeline.innerHTML = '<div class="timeline-empty"><div class="timeline-empty-icon">📭</div><div>Keine Daten verfügbar</div></div>';
+            // Check if data is ready
+            if (!currentUser || !familyMembers || familyMembers.length === 0) {
+                timeline.innerHTML = '<div class="timeline-empty"><div class="loader"></div></div>';
                 return;
             }
-
+            
+            const isParent = currentUser.role === 'parent';
+            
             // Collect all history items
             const historyItems = [];
+            
+            // Get all members to display (for parent: all children, for child: just self)
+            const membersToShow = isParent 
+                ? familyMembers.filter(m => m.role === 'child')
+                : familyMembers.filter(m => m.id === currentUser.id);
 
-            // Add finalized days
-            if (member.finalizedDays && member.finalizedDays.length > 0) {
-                member.finalizedDays.forEach(day => {
-                    historyItems.push({
-                        type: 'finalized',
-                        date: day,
-                        title: '🎉 Tag abgeschlossen!',
-                        desc: 'Alle Aufgaben erledigt - Streak erhöht!',
-                        points: null
-                    });
-                });
-            }
-
-            // Add completed tasks from task completions
-            tasks.forEach(task => {
-                if (task.completions) {
-                    Object.entries(task.completions).forEach(([key, completion]) => {
-                        if (completion.userId === currentUser.id) {
-                            const date = key.split('_')[0];
-                            historyItems.push({
-                                type: 'task',
-                                date: date,
-                                title: `✓ ${task.title}`,
-                                desc: 'Aufgabe erledigt',
-                                points: task.points || 1
-                            });
-                        }
+            membersToShow.forEach(member => {
+                // Add finalized days for each member
+                if (member.finalizedDays && member.finalizedDays.length > 0) {
+                    member.finalizedDays.forEach(day => {
+                        historyItems.push({
+                            type: 'finalized',
+                            date: day,
+                            memberName: member.name,
+                            memberId: member.id,
+                            title: `🎉 ${member.name} hat den Tag abgeschlossen!`,
+                            desc: 'Alle Aufgaben erledigt - Streak erhöht!',
+                            points: null
+                        });
                     });
                 }
             });
 
-            // Sort by date (newest first)
-            historyItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Add completed tasks from task completions
+            if (tasks && tasks.length > 0) {
+                tasks.forEach(task => {
+                    if (task.completions) {
+                        Object.entries(task.completions).forEach(([key, completion]) => {
+                            // For parent: show all completions, for child: show only own
+                            if (isParent || completion.userId === currentUser.id) {
+                                const date = key.split('_')[0];
+                                const member = familyMembers.find(m => m.id === completion.userId);
+                                const memberName = member ? member.name : 'Unbekannt';
+                                
+                                historyItems.push({
+                                    type: 'task',
+                                    date: date,
+                                    memberName: memberName,
+                                    memberId: completion.userId,
+                                    title: `✓ ${task.title}`,
+                                    desc: task.description || 'Aufgabe erledigt',
+                                    points: task.points || 1,
+                                    completedAt: completion.completedAt
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Sort by date (newest first), then by completedAt time
+            historyItems.sort((a, b) => {
+                const dateCompare = new Date(b.date) - new Date(a.date);
+                if (dateCompare !== 0) return dateCompare;
+                // If same date, sort by completion time if available
+                if (a.completedAt && b.completedAt) {
+                    return new Date(b.completedAt) - new Date(a.completedAt);
+                }
+                return 0;
+            });
+
+            // Limit to last 100 items for performance
+            const limitedItems = historyItems.slice(0, 100);
 
             // Group by date
             const grouped = {};
-            historyItems.forEach(item => {
+            limitedItems.forEach(item => {
                 if (!grouped[item.date]) {
                     grouped[item.date] = [];
                 }
@@ -3177,20 +3231,34 @@
                 return date.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
             };
 
-            timeline.innerHTML = '<div class="timeline">' + 
-                Object.entries(grouped).map(([date, items]) => `
-                    <div class="timeline-item ${items.some(i => i.type === 'finalized') ? 'finalized' : 'task-completed'}">
-                        <div class="timeline-date">${formatDate(date)}</div>
-                        ${items.map(item => `
-                            <div class="timeline-content">
-                                <div class="timeline-title">${item.title}</div>
-                                <div class="timeline-desc">${item.desc}</div>
-                                ${item.points ? `<div class="timeline-points">+${item.points} ✦</div>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                `).join('') + 
-                '</div>';
+            // Build HTML using array join for better performance
+            const html = ['<div class="timeline">'];
+            
+            Object.entries(grouped).forEach(([date, items]) => {
+                const isFinalized = items.some(i => i.type === 'finalized');
+                html.push(`<div class="timeline-item ${isFinalized ? 'finalized' : 'task-completed'}">`);
+                html.push(`<div class="timeline-date">${formatDate(date)}</div>`);
+                
+                items.forEach(item => {
+                    html.push('<div class="timeline-content">');
+                    html.push(`<div class="timeline-title">${item.title}</div>`);
+                    if (isParent) {
+                        html.push(`<div class="timeline-member">👤 ${item.memberName}</div>`);
+                    }
+                    html.push(`<div class="timeline-desc">${item.desc}</div>`);
+                    if (item.points) {
+                        html.push(`<div class="timeline-points">+${item.points} ✦</div>`);
+                    }
+                    html.push('</div>');
+                });
+                
+                html.push('</div>');
+            });
+            
+            html.push('</div>');
+            
+            // Single DOM update
+            timeline.innerHTML = html.join('');
         }
     </script>
 </body>
