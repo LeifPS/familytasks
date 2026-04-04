@@ -4111,9 +4111,14 @@
 
         // E-Mail-Daten aus Firestore-Mitglied lesen (geraeteuebergreifend)
         function getParentEmailData(id) {
-            const member = familyMembers.find(m => m.id === (id || currentUser.id));
-            if (!member || !member.notifyEmail || !member.notifyEmail.email) return null;
-            return member.notifyEmail; // { enabled, email }
+            const targetId = id || currentUser.id;
+            const member = familyMembers.find(m => m.id === targetId);
+            console.log('[EmailData] Suche member', targetId, '→', member ? member.notifyEmail : 'nicht gefunden');
+            if (!member) return null;
+            // Unterstütze beide Feldnamen (notifyEmail und emailNotif) zur Sicherheit
+            const d = member.notifyEmail || member.emailNotif || null;
+            if (!d || !d.email) return null;
+            return d;
         }
 
         function toggleParentEmail() {
@@ -4139,12 +4144,20 @@
 
         function saveParentEmail() {
             const email = document.getElementById('parentEmailInput').value.trim();
-            if (!email || !email.includes('@')) { showToast('Bitte eine gueltige E-Mail eingeben', 'warning'); return; }
+            if (!email || !email.includes('@')) { showToast('Bitte eine gültige E-Mail eingeben', 'warning'); return; }
+            console.log('[saveParentEmail] Speichere in Firestore:', email, 'für member', currentUser.id);
             db.collection('families').doc(currentUser.familyId)
                 .collection('members').doc(currentUser.id)
                 .update({ notifyEmail: { enabled: true, email } })
-                .then(() => { showToast('E-Mail gespeichert!', 'success'); updateParentEmailStatus(); })
-                .catch(() => showToast('Fehler beim Speichern', 'warning'));
+                .then(() => {
+                    console.log('[saveParentEmail] Firestore-Schreiben erfolgreich!');
+                    showToast('✅ E-Mail gespeichert! (' + email + ')', 'success');
+                    updateParentEmailStatus();
+                })
+                .catch(e => {
+                    console.error('[saveParentEmail] Firestore-Fehler:', e);
+                    showToast('Fehler beim Speichern: ' + e.message, 'warning');
+                });
         }
 
         function updateParentEmailStatus() {
