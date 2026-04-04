@@ -1905,6 +1905,27 @@
             <button class="btn btn-ghost" style="width:100%; margin-top:8px; color:var(--text-secondary);" onclick="showScreen('feedbackScreen')">
                 💬 Feedback geben
             </button>
+
+            <!-- Reminder Settings -->
+            <div style="margin-top:20px;">
+                <div class="section-title" style="margin-bottom:12px;"><span class="section-icon">⏰</span> Erinnerung</div>
+                <div class="card">
+                    <div class="toggle-group">
+                        <div>
+                            <div class="toggle-label">Tägliche Erinnerung</div>
+                            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Erinnert dich falls du noch nicht fertig bist</div>
+                        </div>
+                        <div class="toggle-switch" id="childReminderToggle" onclick="toggleChildReminder()"></div>
+                    </div>
+                    <div id="childReminderTimeRow" style="display:none; margin-top:14px;">
+                        <label class="input-label">Uhrzeit</label>
+                        <input type="time" class="input-field" id="childReminderTime" value="18:00"
+                               onchange="saveReminderTime(this.value)" style="max-width:160px;">
+                    </div>
+                    <div id="childNotifStatus" style="font-size:12px;color:var(--text-muted);margin-top:8px;"></div>
+                </div>
+            </div>
+
             <!-- Logout Button -->
             <button class="btn btn-ghost" style="width:100%; margin-top:8px; color:var(--danger);" onclick="showLogoutConfirm()">
                 🚪 Abmelden
@@ -2073,6 +2094,21 @@
             <button class="btn btn-ghost" style="width: 100%; margin-top: 24px; color: var(--danger);" onclick="logout()">
                 🚪 Abmelden
             </button>
+
+            <!-- Notification Settings -->
+            <div style="margin-top: 28px;">
+                <div class="section-title" style="margin-bottom: 12px;"><span class="section-icon">🔔</span> Benachrichtigungen</div>
+                <div class="card">
+                    <div class="toggle-group">
+                        <div>
+                            <div class="toggle-label">Kind hat Tag abgeschlossen</div>
+                            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Push-Meldung wenn ein Kind fertig ist</div>
+                        </div>
+                        <div class="toggle-switch" id="parentNotifToggle" onclick="toggleParentNotif()"></div>
+                    </div>
+                    <div id="parentNotifStatus" style="font-size:12px;color:var(--text-muted);margin-top:8px;"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Manage Tasks Screen -->
@@ -2392,6 +2428,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
             updateDateDisplays();
+            initServiceWorker();
 
             // QoL: ESC key closes modal
             document.addEventListener('keydown', (e) => {
@@ -2458,6 +2495,13 @@
 
                     // Show changelog if new version
                     setTimeout(checkAndShowChangelog, 800);
+
+                    // Start notification listeners
+                    if (currentUser.role === 'parent') {
+                        listenForChildDoneNotifs();
+                    } else {
+                        restoreReminderWithSW();
+                    }
                 } else {
                     logout();
                 }
@@ -2856,6 +2900,10 @@
                 await memberRef.update(updates);
                 showToast('🎉 Tag erfolgreich abgeschlossen!');
                 showConfetti();
+
+                // Notify parents
+                const member = familyMembers.find(m => m.id === currentUser.id);
+                if (member) notifyParentsChildDone(member.name);
             } catch (error) {
                 console.error('Error finalizing day:', error);
                 showToast('Fehler beim Abschließen');
@@ -3529,6 +3577,7 @@
                             }
                         }
                         renderWeeklyChart();
+                        updateChildReminderStatus();
                         break;
                 }
             } else {
@@ -3545,6 +3594,7 @@
                         break;
                     case 'settings':
                         showScreen('parentSettingsScreen');
+                        updateParentNotifStatus();
                         break;
                 }
             }
@@ -3899,6 +3949,256 @@
                 showToast('Fehler beim Senden – bitte nochmal versuchen', 'error');
                 btn.disabled = false;
                 btn.textContent = '🚀 Abschicken';
+            }
+        }
+        // ── Service Worker & Notifications ────────────────────────────────────
+
+        let swRegistration = null;
+
+        async function initServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+            try {
+                swRegistration = await navigator.serviceWorker.register('/sw.js');
+                // Listen for SW messages (reminder check responses)
+                navigator.serviceWorker.addEventListener('message', event => {
+                    if (event.data && event.data.type === 'CHECK_REMINDER') {
+                        handleReminderCheck(event.data.memberId);
+                    }
+                });
+            } catch(e) {
+                console.warn('SW registration failed:', e);
+            }
+        }
+
+        async function requestNotifPermission() {
+            if (!('Notification' in window)) return 'unsupported';
+            if (Notification.permission === 'granted') return 'granted';
+            if (Notification.permission === 'denied') return 'denied';
+            const result = await Notification.requestPermission();
+            return result;
+        }
+
+        function sendLocalNotif(title, body, tag = 'ft') {
+            if (Notification.permission !== 'granted') return;
+            const n = new Notification(title, {
+                body,
+                icon: '/icon-192.png',
+                tag,
+                renotify: true,
+                vibrate: [200, 100, 200]
+            });
+            setTimeout(() => n.close(), 8000);
+        }
+
+        // ── Parent: notified when child finalizes ─────────────────────────────
+
+        function toggleParentNotif() {
+            const toggle = document.getElementById('parentNotifToggle');
+            const isActive = toggle.classList.contains('active');
+            if (isActive) {
+                toggle.classList.remove('active');
+                localStorage.removeItem('ft_parent_notif_' + currentUser.id);
+                updateParentNotifStatus();
+            } else {
+                requestNotifPermission().then(perm => {
+                    if (perm === 'granted') {
+                        toggle.classList.add('active');
+                        localStorage.setItem('ft_parent_notif_' + currentUser.id, '1');
+                        showToast('🔔 Benachrichtigungen aktiviert!', 'success');
+                    } else if (perm === 'denied') {
+                        showToast('Benachrichtigungen sind blockiert – bitte in den Browser-Einstellungen erlauben', 'warning');
+                    } else if (perm === 'unsupported') {
+                        showToast('Dein Browser unterstützt keine Benachrichtigungen', 'warning');
+                    }
+                    updateParentNotifStatus();
+                });
+            }
+        }
+
+        function updateParentNotifStatus() {
+            const toggle = document.getElementById('parentNotifToggle');
+            const status = document.getElementById('parentNotifStatus');
+            if (!toggle || !status) return;
+            const enabled = localStorage.getItem('ft_parent_notif_' + currentUser.id) === '1'
+                         && Notification.permission === 'granted';
+            toggle.classList.toggle('active', enabled);
+            if (Notification.permission === 'denied') {
+                status.textContent = '⚠️ Benachrichtigungen sind im Browser blockiert';
+                toggle.classList.remove('active');
+            } else if (enabled) {
+                status.textContent = '✅ Du wirst benachrichtigt wenn ein Kind fertig ist';
+            } else {
+                status.textContent = '';
+            }
+        }
+
+        // Called inside finalizeDay() — notifies all parents in the family
+        function notifyParentsChildDone(childName) {
+            // Find all parents in the family
+            const parents = familyMembers.filter(m => m.role === 'parent');
+            parents.forEach(parent => {
+                const wantsNotif = localStorage.getItem('ft_parent_notif_' + parent.id) === '1';
+                // Only notify if this parent is the currently logged-in user on this device
+                if (parent.id === currentUser.id && wantsNotif && Notification.permission === 'granted') {
+                    sendLocalNotif(
+                        '✅ ' + childName + ' ist fertig!',
+                        childName + ' hat alle Aufgaben erledigt und den Tag abgeschlossen. 🎉',
+                        'child-done-' + childName
+                    );
+                }
+            });
+
+            // Also store in Firestore so other devices (other parents) see it
+            db.collection('families').doc(currentUser.familyId)
+                .collection('notifications').add({
+                    type: 'child_done',
+                    childName,
+                    childId: currentUser.id,
+                    createdAt: new Date().toISOString(),
+                    seen: false
+                }).catch(() => {});
+        }
+
+        // Listen for child_done notifications from Firestore (for parents on other devices)
+        function listenForChildDoneNotifs() {
+            if (currentUser.role !== 'parent') return;
+            const wantsNotif = localStorage.getItem('ft_parent_notif_' + currentUser.id) === '1';
+            if (!wantsNotif) return;
+
+            db.collection('families').doc(currentUser.familyId)
+                .collection('notifications')
+                .where('seen', '==', false)
+                .where('type', '==', 'child_done')
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const n = change.doc.data();
+                            // Don't notify about very old entries
+                            const age = Date.now() - new Date(n.createdAt).getTime();
+                            if (age < 60000 && Notification.permission === 'granted') {
+                                sendLocalNotif(
+                                    '✅ ' + n.childName + ' ist fertig!',
+                                    n.childName + ' hat alle Aufgaben erledigt. 🎉',
+                                    'child-done-' + n.childId
+                                );
+                            }
+                            // Mark as seen
+                            change.doc.ref.update({ seen: true }).catch(() => {});
+                        }
+                    });
+                });
+        }
+
+        // ── Child: daily reminder ─────────────────────────────────────────────
+
+        function toggleChildReminder() {
+            const toggle = document.getElementById('childReminderToggle');
+            const isActive = toggle.classList.contains('active');
+            if (isActive) {
+                toggle.classList.remove('active');
+                document.getElementById('childReminderTimeRow').style.display = 'none';
+                localStorage.removeItem('ft_reminder_' + currentUser.id);
+                if (swRegistration && swRegistration.active) {
+                    swRegistration.active.postMessage({ type: 'CLEAR_REMINDER', memberId: currentUser.id });
+                }
+                updateChildReminderStatus();
+                showToast('Erinnerung deaktiviert');
+            } else {
+                requestNotifPermission().then(perm => {
+                    if (perm === 'granted') {
+                        toggle.classList.add('active');
+                        document.getElementById('childReminderTimeRow').style.display = 'block';
+                        const time = document.getElementById('childReminderTime').value || '18:00';
+                        saveReminderTime(time);
+                        showToast('⏰ Erinnerung aktiviert!', 'success');
+                    } else if (perm === 'denied') {
+                        showToast('Benachrichtigungen sind blockiert – bitte in den Browser-Einstellungen erlauben', 'warning');
+                    } else if (perm === 'unsupported') {
+                        showToast('Dein Browser unterstützt keine Benachrichtigungen', 'warning');
+                    }
+                    updateChildReminderStatus();
+                });
+            }
+        }
+
+        function saveReminderTime(time) {
+            const member = familyMembers.find(m => m.id === currentUser.id);
+            const data = { enabled: true, time, memberId: currentUser.id, memberName: member ? member.name : 'Du', familyId: currentUser.familyId };
+            localStorage.setItem('ft_reminder_' + currentUser.id, JSON.stringify(data));
+
+            if (swRegistration && swRegistration.active) {
+                swRegistration.active.postMessage({ type: 'SET_REMINDER', ...data });
+            }
+            updateChildReminderStatus();
+        }
+
+        function updateChildReminderStatus() {
+            const toggle = document.getElementById('childReminderToggle');
+            const status = document.getElementById('childNotifStatus');
+            const timeRow = document.getElementById('childReminderTimeRow');
+            if (!toggle || !status) return;
+
+            const raw = localStorage.getItem('ft_reminder_' + currentUser.id);
+            const saved = raw ? JSON.parse(raw) : null;
+            const enabled = saved && saved.enabled && Notification.permission === 'granted';
+
+            toggle.classList.toggle('active', !!enabled);
+            if (timeRow) timeRow.style.display = enabled ? 'block' : 'none';
+            if (saved && saved.time && timeRow) {
+                document.getElementById('childReminderTime').value = saved.time;
+            }
+
+            if (Notification.permission === 'denied') {
+                status.textContent = '⚠️ Benachrichtigungen sind im Browser blockiert';
+            } else if (enabled) {
+                status.textContent = `⏰ Erinnerung täglich um ${saved.time} Uhr (nur wenn noch nicht fertig)`;
+            } else {
+                status.textContent = '';
+            }
+        }
+
+        // Re-register reminder with SW after page reload
+        function restoreReminderWithSW() {
+            if (currentUser.role !== 'child') return;
+            const raw = localStorage.getItem('ft_reminder_' + currentUser.id);
+            if (!raw) return;
+            const saved = JSON.parse(raw);
+            if (saved && saved.enabled && swRegistration && swRegistration.active) {
+                swRegistration.active.postMessage({ type: 'SET_REMINDER', ...saved });
+            }
+        }
+
+        // Called by SW when it's time to check if child is done
+        function handleReminderCheck(memberId) {
+            if (memberId !== currentUser.id) return;
+            const today = new Date().toISOString().split('T')[0];
+            const member = familyMembers.find(m => m.id === currentUser.id);
+            if (!member) return;
+
+            // Check if day is already finalized
+            if (member.finalizedDays && member.finalizedDays.includes(today)) return;
+
+            // Check if all tasks are done
+            const dayOfWeek = new Date().getDay();
+            const dayNames = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+            const myTasks = tasks.filter(task => {
+                if (task.assignedTo && !task.assignedTo.includes(currentUser.id)) return false;
+                if (task.type === 'daily') return !task.days || task.days.includes(dayNames[dayOfWeek]);
+                if (task.type === 'once') return task.dueDate === today && !task.completedAt;
+                return true;
+            });
+            const completionKey = `${today}_${currentUser.id}`;
+            const allDone = myTasks.length > 0 && myTasks.every(t => t.completions && t.completions[completionKey]);
+            if (allDone) return; // already done, no reminder needed
+
+            // Fire reminder
+            const data = JSON.parse(localStorage.getItem('ft_reminder_' + currentUser.id) || '{}');
+            if (swRegistration && swRegistration.active) {
+                swRegistration.active.postMessage({
+                    type: 'FIRE_REMINDER',
+                    memberName: member.name,
+                    memberId: currentUser.id
+                });
             }
         }
     </script>
