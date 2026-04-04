@@ -13,6 +13,9 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     
     <style>
         :root {
@@ -1915,7 +1918,7 @@
                 <div class="card">
                     <div class="toggle-group">
                         <div>
-                            <div class="toggle-label">Tägliche Erinnerung</div>
+                            <div class="toggle-label">Push-Erinnerung</div>
                             <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Erinnert dich falls du noch nicht fertig bist</div>
                         </div>
                         <div class="toggle-switch" id="childReminderToggle" onclick="toggleChildReminder()"></div>
@@ -1926,6 +1929,25 @@
                                onchange="saveReminderTime(this.value)" style="max-width:160px;">
                     </div>
                     <div id="childNotifStatus" style="font-size:12px;color:var(--text-muted);margin-top:8px;"></div>
+
+                    <div style="height:1px;background:var(--bg-secondary);margin:16px 0;"></div>
+
+                    <div class="toggle-group">
+                        <div>
+                            <div class="toggle-label">E-Mail-Erinnerung</div>
+                            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Zusätzlich per E-Mail erinnern</div>
+                        </div>
+                        <div class="toggle-switch" id="childEmailToggle" onclick="toggleChildEmail()"></div>
+                    </div>
+                    <div id="childEmailRow" style="display:none; margin-top:12px;">
+                        <label class="input-label">Deine E-Mail-Adresse</label>
+                        <div style="display:flex;gap:8px;">
+                            <input type="email" class="input-field" id="childEmailInput"
+                                   placeholder="name@beispiel.de" style="flex:1;">
+                            <button class="btn btn-accent btn-small" onclick="saveChildEmail()">💾</button>
+                        </div>
+                    </div>
+                    <div id="childEmailStatus" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
                 </div>
             </div>
 
@@ -2106,12 +2128,31 @@
                 <div class="card">
                     <div class="toggle-group">
                         <div>
-                            <div class="toggle-label">Kind hat Tag abgeschlossen</div>
-                            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Push-Meldung wenn ein Kind fertig ist</div>
+                            <div class="toggle-label">Push-Benachrichtigung</div>
+                            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Meldung wenn ein Kind fertig ist</div>
                         </div>
                         <div class="toggle-switch" id="parentNotifToggle" onclick="toggleParentNotif()"></div>
                     </div>
-                    <div id="parentNotifStatus" style="font-size:12px;color:var(--text-muted);margin-top:8px;"></div>
+                    <div id="parentNotifStatus" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
+
+                    <div style="height:1px;background:var(--bg-secondary);margin:16px 0;"></div>
+
+                    <div class="toggle-group">
+                        <div>
+                            <div class="toggle-label">E-Mail-Benachrichtigung</div>
+                            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">E-Mail wenn ein Kind fertig ist</div>
+                        </div>
+                        <div class="toggle-switch" id="parentEmailToggle" onclick="toggleParentEmail()"></div>
+                    </div>
+                    <div id="parentEmailRow" style="display:none; margin-top:12px;">
+                        <label class="input-label">Deine E-Mail-Adresse</label>
+                        <div style="display:flex;gap:8px;">
+                            <input type="email" class="input-field" id="parentEmailInput"
+                                   placeholder="name@beispiel.de" style="flex:1;">
+                            <button class="btn btn-accent btn-small" onclick="saveParentEmail()">💾</button>
+                        </div>
+                    </div>
+                    <div id="parentEmailStatus" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
                 </div>
             </div>
         </div>
@@ -2233,6 +2274,21 @@
 
     <script>
         // Firebase Configuration
+        // ════════════════════════════════════════════════════════════════
+        // EmailJS Konfiguration — hier deine Werte eintragen:
+        // 1. Gehe zu https://www.emailjs.com → kostenloses Konto erstellen
+        // 2. "Email Services" → Gmail/Outlook verbinden → Service-ID kopieren
+        // 3. "Email Templates" → 2 Templates erstellen (siehe SETUP.md)
+        // 4. "Account" → Public Key kopieren
+        // ════════════════════════════════════════════════════════════════
+        const EMAILJS_CONFIG = {
+            publicKey:          'DEIN_PUBLIC_KEY',       // Account → Public Key
+            serviceId:          'DEIN_SERVICE_ID',       // Email Services → Service ID
+            templateParent:     'DEIN_TEMPLATE_PARENT',  // Template für Eltern ("Kind fertig")
+            templateChild:      'DEIN_TEMPLATE_CHILD',   // Template für Kinder ("Erinnerung")
+        };
+        // ════════════════════════════════════════════════════════════════
+
         const firebaseConfig = {
             apiKey: "AIzaSyAfRzi3rrPPzq6GmrAGmyVhNMVZSZMsnAU",
             authDomain: "fa-todo.firebaseapp.com",
@@ -2246,6 +2302,22 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+
+        // EmailJS init
+        if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey !== 'DEIN_PUBLIC_KEY') {
+            emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
+        }
+
+        // Send email via EmailJS — silently fails if not configured
+        async function sendEmail(templateId, params) {
+            if (typeof emailjs === 'undefined') return;
+            if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') return; // not configured yet
+            try {
+                await emailjs.send(EMAILJS_CONFIG.serviceId, templateId, params);
+            } catch(e) {
+                console.warn('EmailJS error:', e);
+            }
+        }
 
         // App State
         let currentUser = null;
@@ -3584,6 +3656,7 @@
                         }
                         renderWeeklyChart();
                         updateChildReminderStatus();
+                        updateChildEmailStatus();
                         break;
                 }
             } else {
@@ -3966,12 +4039,6 @@
             if (!('serviceWorker' in navigator)) return;
             try {
                 swRegistration = await navigator.serviceWorker.register('/sw.js');
-                // Listen for SW messages (reminder check responses)
-                navigator.serviceWorker.addEventListener('message', event => {
-                    if (event.data && event.data.type === 'CHECK_REMINDER') {
-                        handleReminderCheck(event.data.memberId);
-                    }
-                });
             } catch(e) {
                 console.warn('SW registration failed:', e);
             }
@@ -3981,20 +4048,21 @@
             if (!('Notification' in window)) return 'unsupported';
             if (Notification.permission === 'granted') return 'granted';
             if (Notification.permission === 'denied') return 'denied';
-            const result = await Notification.requestPermission();
-            return result;
+            return await Notification.requestPermission();
         }
 
         function sendLocalNotif(title, body, tag = 'ft') {
             if (Notification.permission !== 'granted') return;
-            const n = new Notification(title, {
-                body,
-                icon: '/icon-192.png',
-                tag,
-                renotify: true,
-                vibrate: [200, 100, 200]
-            });
-            setTimeout(() => n.close(), 8000);
+            if (swRegistration) {
+                swRegistration.showNotification(title, {
+                    body, tag, renotify: true,
+                    icon: '/icon-192.png',
+                    vibrate: [200, 100, 200]
+                });
+            } else {
+                const n = new Notification(title, { body, tag });
+                setTimeout(() => n.close(), 8000);
+            }
         }
 
         // ── Parent: notified when child finalizes ─────────────────────────────
@@ -4013,8 +4081,8 @@
                         localStorage.setItem('ft_parent_notif_' + currentUser.id, '1');
                         showToast('🔔 Benachrichtigungen aktiviert!', 'success');
                     } else if (perm === 'denied') {
-                        showToast('Benachrichtigungen sind blockiert – bitte in den Browser-Einstellungen erlauben', 'warning');
-                    } else if (perm === 'unsupported') {
+                        showToast('Benachrichtigungen blockiert – bitte in Browser-Einstellungen erlauben', 'warning');
+                    } else {
                         showToast('Dein Browser unterstützt keine Benachrichtigungen', 'warning');
                     }
                     updateParentNotifStatus();
@@ -4032,46 +4100,150 @@
             if (Notification.permission === 'denied') {
                 status.textContent = '⚠️ Benachrichtigungen sind im Browser blockiert';
                 toggle.classList.remove('active');
-            } else if (enabled) {
-                status.textContent = '✅ Du wirst benachrichtigt wenn ein Kind fertig ist';
             } else {
-                status.textContent = '';
+                status.textContent = enabled ? '✅ Du wirst benachrichtigt wenn ein Kind fertig ist' : '';
+            }
+            updateParentEmailStatus();
+        }
+
+        // ── Parent email ──────────────────────────────────────────────────────
+
+        function getParentEmailData(id) {
+            const raw = localStorage.getItem('ft_parent_email_' + (id || currentUser.id));
+            return raw ? JSON.parse(raw) : null;
+        }
+
+        function toggleParentEmail() {
+            const toggle = document.getElementById('parentEmailToggle');
+            const row    = document.getElementById('parentEmailRow');
+            const isActive = toggle.classList.contains('active');
+            if (isActive) {
+                toggle.classList.remove('active');
+                const d = getParentEmailData();
+                if (d) { d.enabled = false; localStorage.setItem('ft_parent_email_' + currentUser.id, JSON.stringify(d)); }
+                row.style.display = 'none';
+                updateParentEmailStatus();
+            } else {
+                toggle.classList.add('active');
+                row.style.display = 'block';
+                const d = getParentEmailData();
+                if (d && d.email) document.getElementById('parentEmailInput').value = d.email;
+                updateParentEmailStatus();
             }
         }
 
-        // Called inside finalizeDay() — notifies all parents in the family
-        function notifyParentsChildDone(childName) {
-            // Find all parents in the family
-            const parents = familyMembers.filter(m => m.role === 'parent');
-            parents.forEach(parent => {
-                const wantsNotif = localStorage.getItem('ft_parent_notif_' + parent.id) === '1';
-                // Only notify if this parent is the currently logged-in user on this device
-                if (parent.id === currentUser.id && wantsNotif && Notification.permission === 'granted') {
-                    sendLocalNotif(
-                        '✅ ' + childName + ' ist fertig!',
-                        childName + ' hat alle Aufgaben erledigt und den Tag abgeschlossen. 🎉',
-                        'child-done-' + childName
-                    );
-                }
-            });
-
-            // Also store in Firestore so other devices (other parents) see it
-            db.collection('families').doc(currentUser.familyId)
-                .collection('notifications').add({
-                    type: 'child_done',
-                    childName,
-                    childId: currentUser.id,
-                    createdAt: new Date().toISOString(),
-                    seen: false
-                }).catch(() => {});
+        function saveParentEmail() {
+            const email = document.getElementById('parentEmailInput').value.trim();
+            if (!email || !email.includes('@')) { showToast('Bitte eine gültige E-Mail eingeben', 'warning'); return; }
+            localStorage.setItem('ft_parent_email_' + currentUser.id, JSON.stringify({ enabled: true, email }));
+            showToast('✅ E-Mail gespeichert!', 'success');
+            updateParentEmailStatus();
         }
 
-        // Listen for child_done notifications from Firestore (for parents on other devices)
+        function updateParentEmailStatus() {
+            const toggle = document.getElementById('parentEmailToggle');
+            const status = document.getElementById('parentEmailStatus');
+            const row    = document.getElementById('parentEmailRow');
+            if (!toggle || !status) return;
+            const d = getParentEmailData();
+            const enabled = d && d.enabled && d.email;
+            toggle.classList.toggle('active', !!enabled);
+            if (row) row.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+            if (d && d.email) { const el = document.getElementById('parentEmailInput'); if (el) el.value = d.email; }
+            if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') {
+                status.textContent = '⚠️ EmailJS noch nicht eingerichtet – siehe SETUP.md';
+            } else {
+                status.textContent = enabled ? `📧 E-Mails gehen an ${d.email}` : '';
+            }
+        }
+
+        // ── Child email ───────────────────────────────────────────────────────
+
+        function getChildEmailData() {
+            const raw = localStorage.getItem('ft_child_email_' + currentUser.id);
+            return raw ? JSON.parse(raw) : null;
+        }
+
+        function toggleChildEmail() {
+            const toggle = document.getElementById('childEmailToggle');
+            const row    = document.getElementById('childEmailRow');
+            const isActive = toggle.classList.contains('active');
+            if (isActive) {
+                toggle.classList.remove('active');
+                const d = getChildEmailData();
+                if (d) { d.enabled = false; localStorage.setItem('ft_child_email_' + currentUser.id, JSON.stringify(d)); }
+                row.style.display = 'none';
+                updateChildEmailStatus();
+            } else {
+                toggle.classList.add('active');
+                row.style.display = 'block';
+                const d = getChildEmailData();
+                if (d && d.email) document.getElementById('childEmailInput').value = d.email;
+                updateChildEmailStatus();
+            }
+        }
+
+        function saveChildEmail() {
+            const email = document.getElementById('childEmailInput').value.trim();
+            if (!email || !email.includes('@')) { showToast('Bitte eine gültige E-Mail eingeben', 'warning'); return; }
+            localStorage.setItem('ft_child_email_' + currentUser.id, JSON.stringify({ enabled: true, email }));
+            showToast('✅ E-Mail gespeichert!', 'success');
+            updateChildEmailStatus();
+        }
+
+        function updateChildEmailStatus() {
+            const toggle = document.getElementById('childEmailToggle');
+            const status = document.getElementById('childEmailStatus');
+            const row    = document.getElementById('childEmailRow');
+            if (!toggle || !status) return;
+            const d = getChildEmailData();
+            const enabled = d && d.enabled && d.email;
+            toggle.classList.toggle('active', !!enabled);
+            if (row) row.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+            if (d && d.email) { const el = document.getElementById('childEmailInput'); if (el) el.value = d.email; }
+            if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') {
+                status.textContent = '⚠️ EmailJS noch nicht eingerichtet – siehe SETUP.md';
+            } else {
+                status.textContent = enabled ? `📧 E-Mails gehen an ${d.email}` : '';
+            }
+        }
+
+        function notifyParentsChildDone(childName) {
+            // Push on this device
+            const parents = familyMembers.filter(m => m.role === 'parent');
+            parents.forEach(parent => {
+                if (parent.id === currentUser.id
+                    && localStorage.getItem('ft_parent_notif_' + parent.id) === '1'
+                    && Notification.permission === 'granted') {
+                    sendLocalNotif('✅ ' + childName + ' ist fertig!',
+                        childName + ' hat alle Aufgaben erledigt und den Tag abgeschlossen. 🎉',
+                        'child-done-' + childName);
+                }
+            });
+            // Write to Firestore so other parent devices pick it up
+            db.collection('families').doc(currentUser.familyId)
+                .collection('notifications').add({
+                    type: 'child_done', childName, childId: currentUser.id,
+                    createdAt: new Date().toISOString(), seen: false
+                }).catch(() => {});
+
+            // E-Mail an alle Eltern die E-Mail aktiviert haben
+            parents.forEach(parent => {
+                const emailData = getParentEmailData(parent.id);
+                if (emailData && emailData.enabled && emailData.email) {
+                    sendEmail(EMAILJS_CONFIG.templateParent, {
+                        to_email:   emailData.email,
+                        child_name: childName,
+                        family_name: currentFamily ? currentFamily.name : 'eure Familie',
+                        time:        new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+                    });
+                }
+            });
+        }
+
         function listenForChildDoneNotifs() {
             if (currentUser.role !== 'parent') return;
-            const wantsNotif = localStorage.getItem('ft_parent_notif_' + currentUser.id) === '1';
-            if (!wantsNotif) return;
-
+            if (localStorage.getItem('ft_parent_notif_' + currentUser.id) !== '1') return;
             db.collection('families').doc(currentUser.familyId)
                 .collection('notifications')
                 .where('seen', '==', false)
@@ -4080,23 +4252,21 @@
                     snapshot.docChanges().forEach(change => {
                         if (change.type === 'added') {
                             const n = change.doc.data();
-                            // Don't notify about very old entries
                             const age = Date.now() - new Date(n.createdAt).getTime();
-                            if (age < 60000 && Notification.permission === 'granted') {
-                                sendLocalNotif(
-                                    '✅ ' + n.childName + ' ist fertig!',
+                            if (age < 120000 && Notification.permission === 'granted') {
+                                sendLocalNotif('✅ ' + n.childName + ' ist fertig!',
                                     n.childName + ' hat alle Aufgaben erledigt. 🎉',
-                                    'child-done-' + n.childId
-                                );
+                                    'child-done-' + n.childId);
                             }
-                            // Mark as seen
                             change.doc.ref.update({ seen: true }).catch(() => {});
                         }
                     });
                 });
         }
 
-        // ── Child: daily reminder ─────────────────────────────────────────────
+        // ── Child: daily reminder (runs entirely in the app) ──────────────────
+
+        let _reminderInterval = null;
 
         function toggleChildReminder() {
             const toggle = document.getElementById('childReminderToggle');
@@ -4105,9 +4275,7 @@
                 toggle.classList.remove('active');
                 document.getElementById('childReminderTimeRow').style.display = 'none';
                 localStorage.removeItem('ft_reminder_' + currentUser.id);
-                if (swRegistration && swRegistration.active) {
-                    swRegistration.active.postMessage({ type: 'CLEAR_REMINDER', memberId: currentUser.id });
-                }
+                stopReminderInterval();
                 updateChildReminderStatus();
                 showToast('Erinnerung deaktiviert');
             } else {
@@ -4119,8 +4287,8 @@
                         saveReminderTime(time);
                         showToast('⏰ Erinnerung aktiviert!', 'success');
                     } else if (perm === 'denied') {
-                        showToast('Benachrichtigungen sind blockiert – bitte in den Browser-Einstellungen erlauben', 'warning');
-                    } else if (perm === 'unsupported') {
+                        showToast('Benachrichtigungen blockiert – bitte in Browser-Einstellungen erlauben', 'warning');
+                    } else {
                         showToast('Dein Browser unterstützt keine Benachrichtigungen', 'warning');
                     }
                     updateChildReminderStatus();
@@ -4130,30 +4298,30 @@
 
         function saveReminderTime(time) {
             const member = familyMembers.find(m => m.id === currentUser.id);
-            const data = { enabled: true, time, memberId: currentUser.id, memberName: member ? member.name : 'Du', familyId: currentUser.familyId };
+            const data = {
+                enabled: true, time,
+                memberId: currentUser.id,
+                memberName: member ? member.name : 'Du',
+                familyId: currentUser.familyId
+            };
             localStorage.setItem('ft_reminder_' + currentUser.id, JSON.stringify(data));
-
-            if (swRegistration && swRegistration.active) {
-                swRegistration.active.postMessage({ type: 'SET_REMINDER', ...data });
-            }
+            startReminderInterval();
             updateChildReminderStatus();
         }
 
         function updateChildReminderStatus() {
-            const toggle = document.getElementById('childReminderToggle');
-            const status = document.getElementById('childNotifStatus');
+            const toggle  = document.getElementById('childReminderToggle');
+            const status  = document.getElementById('childNotifStatus');
             const timeRow = document.getElementById('childReminderTimeRow');
             if (!toggle || !status) return;
 
-            const raw = localStorage.getItem('ft_reminder_' + currentUser.id);
-            const saved = raw ? JSON.parse(raw) : null;
+            const raw    = localStorage.getItem('ft_reminder_' + currentUser.id);
+            const saved  = raw ? JSON.parse(raw) : null;
             const enabled = saved && saved.enabled && Notification.permission === 'granted';
 
             toggle.classList.toggle('active', !!enabled);
             if (timeRow) timeRow.style.display = enabled ? 'block' : 'none';
-            if (saved && saved.time && timeRow) {
-                document.getElementById('childReminderTime').value = saved.time;
-            }
+            if (saved && saved.time) document.getElementById('childReminderTime').value = saved.time;
 
             if (Notification.permission === 'denied') {
                 status.textContent = '⚠️ Benachrichtigungen sind im Browser blockiert';
@@ -4164,47 +4332,88 @@
             }
         }
 
-        // Re-register reminder with SW after page reload
+        // Start a 30-second interval that checks if it's time to remind
+        function startReminderInterval() {
+            stopReminderInterval();
+            if (currentUser.role !== 'child') return;
+            _reminderInterval = setInterval(checkReminderTick, 30000);
+            // Also check immediately in case of missed reminder on app-open
+            checkReminderTick(true);
+        }
+
+        function stopReminderInterval() {
+            if (_reminderInterval) { clearInterval(_reminderInterval); _reminderInterval = null; }
+        }
+
         function restoreReminderWithSW() {
             if (currentUser.role !== 'child') return;
             const raw = localStorage.getItem('ft_reminder_' + currentUser.id);
             if (!raw) return;
             const saved = JSON.parse(raw);
-            if (saved && saved.enabled && swRegistration && swRegistration.active) {
-                swRegistration.active.postMessage({ type: 'SET_REMINDER', ...saved });
-            }
+            if (saved && saved.enabled) startReminderInterval();
         }
 
-        // Called by SW when it's time to check if child is done
-        function handleReminderCheck(memberId) {
-            if (memberId !== currentUser.id) return;
-            const today = new Date().toISOString().split('T')[0];
+        // Called every 30s — fires notification if time matches and child isn't done
+        function checkReminderTick(onOpen = false) {
+            const raw = localStorage.getItem('ft_reminder_' + currentUser.id);
+            if (!raw) return;
+            const saved = JSON.parse(raw);
+            if (!saved || !saved.enabled || Notification.permission !== 'granted') return;
+
+            const now   = new Date();
+            const hhmm  = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+            const today = now.toISOString().split('T')[0];
+
+            // For regular ticks: must be exact minute
+            // For on-open check: fire if we're within 30min past the set time and haven't fired today
+            let shouldFire = false;
+            if (!onOpen) {
+                shouldFire = hhmm === saved.time;
+            } else {
+                const [rh, rm] = saved.time.split(':').map(Number);
+                const reminderMinutes = rh * 60 + rm;
+                const nowMinutes      = now.getHours() * 60 + now.getMinutes();
+                const lastFiredKey    = 'ft_reminder_fired_' + currentUser.id + '_' + today;
+                const alreadyFired    = localStorage.getItem(lastFiredKey);
+                shouldFire = !alreadyFired && nowMinutes >= reminderMinutes && nowMinutes <= reminderMinutes + 30;
+            }
+
+            if (!shouldFire) return;
+
+            // Check if already done
             const member = familyMembers.find(m => m.id === currentUser.id);
             if (!member) return;
-
-            // Check if day is already finalized
             if (member.finalizedDays && member.finalizedDays.includes(today)) return;
 
-            // Check if all tasks are done
-            const dayOfWeek = new Date().getDay();
-            const dayNames = ['So','Mo','Di','Mi','Do','Fr','Sa'];
-            const myTasks = tasks.filter(task => {
+            const dayOfWeek = now.getDay();
+            const dayNames  = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+            const myTasks   = tasks.filter(task => {
                 if (task.assignedTo && !task.assignedTo.includes(currentUser.id)) return false;
                 if (task.type === 'daily') return !task.days || task.days.includes(dayNames[dayOfWeek]);
-                if (task.type === 'once') return task.dueDate === today && !task.completedAt;
+                if (task.type === 'once')  return task.dueDate === today && !task.completedAt;
                 return true;
             });
-            const completionKey = `${today}_${currentUser.id}`;
-            const allDone = myTasks.length > 0 && myTasks.every(t => t.completions && t.completions[completionKey]);
-            if (allDone) return; // already done, no reminder needed
+            const key     = `${today}_${currentUser.id}`;
+            const allDone = myTasks.length > 0 && myTasks.every(t => t.completions && t.completions[key]);
+            if (allDone) return;
 
-            // Fire reminder
-            const data = JSON.parse(localStorage.getItem('ft_reminder_' + currentUser.id) || '{}');
-            if (swRegistration && swRegistration.active) {
-                swRegistration.active.postMessage({
-                    type: 'FIRE_REMINDER',
-                    memberName: member.name,
-                    memberId: currentUser.id
+            // Mark as fired today so we don't repeat
+            localStorage.setItem('ft_reminder_fired_' + currentUser.id + '_' + today, '1');
+
+            sendLocalNotif(
+                '⏰ Nicht vergessen!',
+                `Hey ${member.name}! Du hast noch Aufgaben offen. Erledige sie jetzt! 💪`,
+                'reminder-' + currentUser.id
+            );
+
+            // E-Mail Erinnerung
+            const emailData = getChildEmailData();
+            if (emailData && emailData.enabled && emailData.email) {
+                sendEmail(EMAILJS_CONFIG.templateChild, {
+                    to_email:    emailData.email,
+                    child_name:  member.name,
+                    reminder_time: saved.time,
+                    family_name: currentFamily ? currentFamily.name : 'eure Familie',
                 });
             }
         }
