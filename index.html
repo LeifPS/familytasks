@@ -2299,16 +2299,12 @@
 
         // Send email via EmailJS — silently fails if not configured
         async function sendEmail(templateId, params) {
-            console.log('[EmailJS] sendEmail aufgerufen', { templateId, params });
-            if (typeof emailjs === 'undefined') { console.error('[EmailJS] emailjs nicht geladen!'); return; }
-            if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') { console.error('[EmailJS] Public Key nicht gesetzt!'); return; }
+            if (typeof emailjs === 'undefined') return;
+            if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') return;
             try {
-                const result = await emailjs.send(EMAILJS_CONFIG.serviceId, templateId, params);
-                console.log('[EmailJS] Erfolg!', result);
-                showToast('📧 E-Mail gesendet!', 'success');
+                await emailjs.send(EMAILJS_CONFIG.serviceId, templateId, params);
             } catch(e) {
-                console.error('[EmailJS] Fehler:', e);
-                showToast('📧 E-Mail Fehler: ' + (e.text || e.message || JSON.stringify(e)), 'warning');
+                console.warn('EmailJS error:', e);
             }
         }
 
@@ -2975,18 +2971,10 @@
 
                 // Notify parents
                 const member = familyMembers.find(m => m.id === currentUser.id);
-                console.log('[Debug] member gefunden:', member);
-                console.log('[Debug] familyMembers:', familyMembers);
-                if (member) {
-                    showToast('📨 Sende E-Mail...', 'success');
-                    notifyParentsChildDone(member.name);
-                } else {
-                    showToast('⚠️ Debug: member nicht gefunden in familyMembers', 'warning');
-                    console.warn('[Debug] currentUser.id:', currentUser.id, 'familyMembers IDs:', familyMembers.map(m => m.id));
-                }
+                if (member) notifyParentsChildDone(member.name);
             } catch (error) {
                 console.error('Error finalizing day:', error);
-                showToast('Fehler beim Abschließen: ' + error.message, 'warning');
+                showToast('Fehler beim Abschließen');
             }
         }
 
@@ -4111,11 +4099,8 @@
 
         // E-Mail-Daten aus Firestore-Mitglied lesen (geraeteuebergreifend)
         function getParentEmailData(id) {
-            const targetId = id || currentUser.id;
-            const member = familyMembers.find(m => m.id === targetId);
-            console.log('[EmailData] Suche member', targetId, '→', member ? member.notifyEmail : 'nicht gefunden');
+            const member = familyMembers.find(m => m.id === (id || currentUser.id));
             if (!member) return null;
-            // Unterstütze beide Feldnamen (notifyEmail und emailNotif) zur Sicherheit
             const d = member.notifyEmail || member.emailNotif || null;
             if (!d || !d.email) return null;
             return d;
@@ -4145,19 +4130,11 @@
         function saveParentEmail() {
             const email = document.getElementById('parentEmailInput').value.trim();
             if (!email || !email.includes('@')) { showToast('Bitte eine gültige E-Mail eingeben', 'warning'); return; }
-            console.log('[saveParentEmail] Speichere in Firestore:', email, 'für member', currentUser.id);
             db.collection('families').doc(currentUser.familyId)
                 .collection('members').doc(currentUser.id)
                 .update({ notifyEmail: { enabled: true, email } })
-                .then(() => {
-                    console.log('[saveParentEmail] Firestore-Schreiben erfolgreich!');
-                    showToast('✅ E-Mail gespeichert! (' + email + ')', 'success');
-                    updateParentEmailStatus();
-                })
-                .catch(e => {
-                    console.error('[saveParentEmail] Firestore-Fehler:', e);
-                    showToast('Fehler beim Speichern: ' + e.message, 'warning');
-                });
+                .then(() => { showToast('✅ E-Mail gespeichert!', 'success'); updateParentEmailStatus(); })
+                .catch(e => showToast('Fehler beim Speichern: ' + e.message, 'warning'));
         }
 
         function updateParentEmailStatus() {
@@ -4262,10 +4239,8 @@
                 }).catch(() => {});
 
             // E-Mail an alle Eltern die in Firestore eine E-Mail hinterlegt haben
-            console.log('[EmailJS] Eltern gefunden:', parents.length, parents.map(p => ({id: p.id, notifyEmail: p.notifyEmail})));
             parents.forEach(parent => {
                 const emailData = getParentEmailData(parent.id);
-                console.log('[EmailJS] Parent', parent.id, '→ emailData:', emailData);
                 if (emailData && emailData.enabled && emailData.email) {
                     sendEmail(EMAILJS_CONFIG.templateParent, {
                         to_email:    emailData.email,
@@ -4273,8 +4248,6 @@
                         family_name: currentFamily ? currentFamily.name : 'eure Familie',
                         time:        new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
                     });
-                } else {
-                    console.warn('[EmailJS] Kein E-Mail für Parent', parent.id, '- emailData:', emailData);
                 }
             });
         }
