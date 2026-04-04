@@ -1073,6 +1073,9 @@
             background: white;
             color: var(--success);
             font-weight: 800;
+            display: inline-flex;
+            width: auto;
+            padding: 14px 36px;
         }
 
         .finalize-btn:hover {
@@ -2028,7 +2031,9 @@
             <!-- Tasks Overview -->
             <div class="section-header">
                 <span class="section-title"><span class="section-icon">📋</span> Heutige Aufgaben</span>
-                <button class="btn btn-small btn-primary" onclick="showAddTaskModal()">+ Neu</button>
+            </div>
+            <div style="text-align:center; margin-bottom:12px;">
+                <button class="btn btn-primary" style="display:inline-flex; width:auto; padding:12px 28px;" onclick="showAddTaskModal()">➕ Aufgabe erstellen</button>
             </div>
             <div id="parentTaskOverview"></div>
         </div>
@@ -2115,9 +2120,11 @@
         <div class="screen" id="manageTasksScreen">
             <div class="header">
                 <button class="btn btn-ghost" onclick="navigateTo('settings')">← Zurück</button>
-                <button class="btn btn-small btn-primary" onclick="showAddTaskModal()">+ Neu</button>
             </div>
-            <h1 style="font-family: 'Fredoka', sans-serif; font-size: 24px; margin-bottom: 24px;">📝 Aufgaben verwalten</h1>
+            <h1 style="font-family: 'Fredoka', sans-serif; font-size: 24px; margin-bottom: 16px;">📝 Aufgaben verwalten</h1>
+            <div style="text-align:center; margin-bottom:24px;">
+                <button class="btn btn-primary" style="display:inline-flex; width:auto; padding:13px 32px;" onclick="showAddTaskModal()">➕ Neue Aufgabe erstellen</button>
+            </div>
             
             <!-- Daily Tasks -->
             <div class="section-header">
@@ -2202,9 +2209,9 @@
                 <span class="nav-icon">🏠</span>
                 <span class="nav-label">Übersicht</span>
             </button>
-            <button class="nav-item parent-nav" data-screen="tasks" onclick="navigateTo('tasks')">
-                <span class="nav-icon">📝</span>
-                <span class="nav-label">Aufgaben</span>
+            <button class="nav-item parent-nav" data-screen="history" onclick="navigateTo('history')">
+                <span class="nav-icon">📜</span>
+                <span class="nav-label">Verlauf</span>
             </button>
             <button class="nav-item parent-nav" data-screen="settings" onclick="navigateTo('settings')">
                 <span class="nav-icon">⚙️</span>
@@ -2979,7 +2986,6 @@
                         <div class="empty-icon">📝</div>
                         <div class="empty-title">Keine Aufgaben</div>
                         <div class="empty-desc">Erstelle Aufgaben für deine Kinder</div>
-                        <button class="btn btn-primary btn-small" onclick="showAddTaskModal()">+ Aufgabe erstellen</button>
                     </div>
                 `;
             } else {
@@ -3586,8 +3592,9 @@
                     case 'home':
                         showScreen('parentDashboard');
                         break;
-                    case 'tasks':
-                        showScreen('manageTasksScreen');
+                    case 'history':
+                        showScreen('historyScreen');
+                        renderHistoryTimeline();
                         break;
                     case 'members':
                         showScreen('manageMembersScreen');
