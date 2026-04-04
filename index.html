@@ -4097,9 +4097,11 @@
 
         // ── Parent email ──────────────────────────────────────────────────────
 
+        // E-Mail-Daten aus Firestore-Mitglied lesen (geraeteuebergreifend)
         function getParentEmailData(id) {
-            const raw = localStorage.getItem('ft_parent_email_' + (id || currentUser.id));
-            return raw ? JSON.parse(raw) : null;
+            const member = familyMembers.find(m => m.id === (id || currentUser.id));
+            if (!member || !member.notifyEmail || !member.notifyEmail.email) return null;
+            return member.notifyEmail; // { enabled, email }
         }
 
         function toggleParentEmail() {
@@ -4108,33 +4110,31 @@
             const isActive = toggle.classList.contains('active');
             if (isActive) {
                 toggle.classList.remove('active');
-                const d = getParentEmailData();
-                if (d) { d.enabled = false; localStorage.setItem('ft_parent_email_' + currentUser.id, JSON.stringify(d)); }
                 row.style.display = 'none';
+                db.collection('families').doc(currentUser.familyId)
+                    .collection('members').doc(currentUser.id)
+                    .update({ 'notifyEmail.enabled': false }).catch(() => {});
                 updateParentEmailStatus();
             } else {
-                // Always show the input row so user can enter their email
                 toggle.classList.add('active');
                 row.style.display = 'block';
                 const d = getParentEmailData();
-                if (d && d.email) {
-                    document.getElementById('parentEmailInput').value = d.email;
-                    d.enabled = true;
-                    localStorage.setItem('ft_parent_email_' + currentUser.id, JSON.stringify(d));
-                } else {
-                    // No email yet — save a pending enabled state so row stays open
-                    localStorage.setItem('ft_parent_email_' + currentUser.id, JSON.stringify({ enabled: true, email: '' }));
-                }
+                if (d && d.email) document.getElementById('parentEmailInput').value = d.email;
+                db.collection('families').doc(currentUser.familyId)
+                    .collection('members').doc(currentUser.id)
+                    .update({ 'notifyEmail.enabled': true }).catch(() => {});
                 updateParentEmailStatus();
             }
         }
 
         function saveParentEmail() {
             const email = document.getElementById('parentEmailInput').value.trim();
-            if (!email || !email.includes('@')) { showToast('Bitte eine gültige E-Mail eingeben', 'warning'); return; }
-            localStorage.setItem('ft_parent_email_' + currentUser.id, JSON.stringify({ enabled: true, email }));
-            showToast('✅ E-Mail gespeichert!', 'success');
-            updateParentEmailStatus();
+            if (!email || !email.includes('@')) { showToast('Bitte eine gueltige E-Mail eingeben', 'warning'); return; }
+            db.collection('families').doc(currentUser.familyId)
+                .collection('members').doc(currentUser.id)
+                .update({ notifyEmail: { enabled: true, email } })
+                .then(() => { showToast('E-Mail gespeichert!', 'success'); updateParentEmailStatus(); })
+                .catch(() => showToast('Fehler beim Speichern', 'warning'));
         }
 
         function updateParentEmailStatus() {
@@ -4143,17 +4143,14 @@
             const row    = document.getElementById('parentEmailRow');
             if (!toggle || !status) return;
             const d = getParentEmailData();
-            const pendingOpen = d && d.enabled; // toggle is ON (even if no email yet)
             const enabled = d && d.enabled && d.email;
-            toggle.classList.toggle('active', !!pendingOpen);
-            if (row) row.style.display = pendingOpen ? 'block' : 'none';
+            toggle.classList.toggle('active', !!enabled);
+            if (row) row.style.display = enabled ? 'block' : 'none';
             if (d && d.email) { const el = document.getElementById('parentEmailInput'); if (el) el.value = d.email; }
             if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') {
-                status.textContent = '⚠️ EmailJS noch nicht eingerichtet – siehe SETUP.md';
-            } else if (pendingOpen && !d.email) {
-                status.textContent = '📧 Bitte E-Mail-Adresse eingeben und speichern';
+                status.textContent = 'EmailJS noch nicht eingerichtet';
             } else {
-                status.textContent = enabled ? `📧 E-Mails gehen an ${d.email}` : '';
+                status.textContent = enabled ? ('E-Mails gehen an ' + d.email) : '';
             }
         }
 
@@ -4238,16 +4235,18 @@
                     createdAt: new Date().toISOString(), seen: false
                 }).catch(() => {});
 
-            // E-Mail an den aktuell eingeloggten Elternteil (localStorage ist gerätebezogen)
-            const emailData = getParentEmailData(currentUser.id);
-            if (emailData && emailData.enabled && emailData.email) {
-                sendEmail(EMAILJS_CONFIG.templateParent, {
-                    to_email:   emailData.email,
-                    child_name: childName,
-                    family_name: currentFamily ? currentFamily.name : 'eure Familie',
-                    time:        new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-                });
-            }
+            // E-Mail an alle Eltern die in Firestore eine E-Mail hinterlegt haben
+            parents.forEach(parent => {
+                const emailData = getParentEmailData(parent.id); // liest aus familyMembers (Firestore)
+                if (emailData && emailData.enabled && emailData.email) {
+                    sendEmail(EMAILJS_CONFIG.templateParent, {
+                        to_email:    emailData.email,
+                        child_name:  childName,
+                        family_name: currentFamily ? currentFamily.name : 'eure Familie',
+                        time:        new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+                    });
+                }
+            });
         }
 
         function listenForChildDoneNotifs() {
