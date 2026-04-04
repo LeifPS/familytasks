@@ -14,7 +14,7 @@
  * Passe ADMIN_KEY unten an!
  */
 
-const ADMIN_KEY = 'meinGeheimesPasswort123'; // ← hier deinen Key eintragen
+const ADMIN_KEY = 'RS4ADM'; // ← hier deinen Key eintragen
 
 export default {
     async fetch(request, env) {
