@@ -1912,29 +1912,6 @@
                 💬 Feedback geben
             </button>
 
-            <!-- Reminder Settings -->
-            <div style="margin-top:20px;">
-                <div class="section-title" style="margin-bottom:12px;"><span class="section-icon">⏰</span> Erinnerung</div>
-                <div class="card">
-                    <div class="toggle-group">
-                        <div>
-                            <div class="toggle-label">E-Mail-Erinnerung</div>
-                            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Zusätzlich per E-Mail erinnern</div>
-                        </div>
-                        <div class="toggle-switch" id="childEmailToggle" onclick="toggleChildEmail()"></div>
-                    </div>
-                    <div id="childEmailRow" style="display:none; margin-top:12px;">
-                        <label class="input-label">Deine E-Mail-Adresse</label>
-                        <div style="display:flex;gap:8px;">
-                            <input type="email" class="input-field" id="childEmailInput"
-                                   placeholder="name@beispiel.de" style="flex:1;">
-                            <button class="btn btn-accent btn-small" onclick="saveChildEmail()">💾</button>
-                        </div>
-                    </div>
-                    <div id="childEmailStatus" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
-                </div>
-            </div>
-
             <!-- Logout Button -->
             <button class="btn btn-ghost" style="width:100%; margin-top:8px; color:var(--danger);" onclick="showLogoutConfirm()">
                 🚪 Abmelden
@@ -4178,8 +4155,10 @@
         function saveChildEmail() {
             const email = document.getElementById('childEmailInput').value.trim();
             if (!email || !email.includes('@')) { showToast('Bitte eine gültige E-Mail eingeben', 'warning'); return; }
-            localStorage.setItem('ft_child_email_' + currentUser.id, JSON.stringify({ enabled: true, email }));
-            showToast('✅ E-Mail gespeichert!', 'success');
+            const time = document.getElementById('childReminderTime').value || '18:00';
+            localStorage.setItem('ft_child_email_' + currentUser.id, JSON.stringify({ enabled: true, email, time }));
+            showToast('✅ Gespeichert! Erinnerung um ' + time + ' Uhr', 'success');
+            startReminderInterval();
             updateChildEmailStatus();
         }
 
@@ -4189,17 +4168,18 @@
             const row    = document.getElementById('childEmailRow');
             if (!toggle || !status) return;
             const d = getChildEmailData();
-            const pendingOpen = d && d.enabled; // toggle is ON (even if no email yet)
+            const isOn = toggle.classList.contains('active');
             const enabled = d && d.enabled && d.email;
-            toggle.classList.toggle('active', !!pendingOpen);
-            if (row) row.style.display = pendingOpen ? 'block' : 'none';
+            toggle.classList.toggle('active', !!enabled || isOn);
+            if (row) row.style.display = (enabled || isOn) ? 'block' : 'none';
             if (d && d.email) { const el = document.getElementById('childEmailInput'); if (el) el.value = d.email; }
+            if (d && d.time) { const el = document.getElementById('childReminderTime'); if (el) el.value = d.time; }
             if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') {
-                status.textContent = '⚠️ EmailJS noch nicht eingerichtet – siehe SETUP.md';
-            } else if (pendingOpen && !d.email) {
-                status.textContent = '📧 Bitte E-Mail-Adresse eingeben und speichern';
+                status.textContent = '⚠️ EmailJS noch nicht eingerichtet';
+            } else if (isOn && !enabled) {
+                status.textContent = '📧 E-Mail und Uhrzeit eingeben und speichern';
             } else {
-                status.textContent = enabled ? `📧 E-Mails gehen an ${d.email}` : '';
+                status.textContent = enabled ? `⏰ Erinnerung täglich um ${d.time || '18:00'} Uhr an ${d.email}` : '';
             }
         }
 
@@ -4342,30 +4322,25 @@
 
         function restoreReminderWithSW() {
             if (currentUser.role !== 'child') return;
-            const raw = localStorage.getItem('ft_reminder_' + currentUser.id);
-            if (!raw) return;
-            const saved = JSON.parse(raw);
-            if (saved && saved.enabled) startReminderInterval();
+            const emailData = getChildEmailData();
+            if (emailData && emailData.enabled && emailData.email) startReminderInterval();
         }
 
-        // Called every 30s — fires notification if time matches and child isn't done
+        // Called every 30s — sends reminder email if time matches and child isn't done
         function checkReminderTick(onOpen = false) {
-            const raw = localStorage.getItem('ft_reminder_' + currentUser.id);
-            if (!raw) return;
-            const saved = JSON.parse(raw);
-            if (!saved || !saved.enabled || Notification.permission !== 'granted') return;
+            const emailData = getChildEmailData();
+            if (!emailData || !emailData.enabled || !emailData.email) return;
+            const reminderTime = emailData.time || '18:00';
 
             const now   = new Date();
             const hhmm  = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
             const today = now.toISOString().split('T')[0];
 
-            // For regular ticks: must be exact minute
-            // For on-open check: fire if we're within 30min past the set time and haven't fired today
             let shouldFire = false;
             if (!onOpen) {
-                shouldFire = hhmm === saved.time;
+                shouldFire = hhmm === reminderTime;
             } else {
-                const [rh, rm] = saved.time.split(':').map(Number);
+                const [rh, rm] = reminderTime.split(':').map(Number);
                 const reminderMinutes = rh * 60 + rm;
                 const nowMinutes      = now.getHours() * 60 + now.getMinutes();
                 const lastFiredKey    = 'ft_reminder_fired_' + currentUser.id + '_' + today;
@@ -4395,22 +4370,13 @@
             // Mark as fired today so we don't repeat
             localStorage.setItem('ft_reminder_fired_' + currentUser.id + '_' + today, '1');
 
-            sendLocalNotif(
-                '⏰ Nicht vergessen!',
-                `Hey ${member.name}! Du hast noch Aufgaben offen. Erledige sie jetzt! 💪`,
-                'reminder-' + currentUser.id
-            );
-
-            // E-Mail Erinnerung
-            const emailData = getChildEmailData();
-            if (emailData && emailData.enabled && emailData.email) {
-                sendEmail(EMAILJS_CONFIG.templateChild, {
-                    to_email:    emailData.email,
-                    child_name:  member.name,
-                    reminder_time: saved.time,
-                    family_name: currentFamily ? currentFamily.name : 'eure Familie',
-                });
-            }
+            // Nur E-Mail senden
+            sendEmail(EMAILJS_CONFIG.templateChild, {
+                to_email:      emailData.email,
+                child_name:    member.name,
+                reminder_time: reminderTime,
+                family_name:   currentFamily ? currentFamily.name : 'eure Familie',
+            });
         }
     </script>
 </body>
