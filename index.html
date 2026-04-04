@@ -2975,10 +2975,18 @@
 
                 // Notify parents
                 const member = familyMembers.find(m => m.id === currentUser.id);
-                if (member) notifyParentsChildDone(member.name);
+                console.log('[Debug] member gefunden:', member);
+                console.log('[Debug] familyMembers:', familyMembers);
+                if (member) {
+                    showToast('📨 Sende E-Mail...', 'success');
+                    notifyParentsChildDone(member.name);
+                } else {
+                    showToast('⚠️ Debug: member nicht gefunden in familyMembers', 'warning');
+                    console.warn('[Debug] currentUser.id:', currentUser.id, 'familyMembers IDs:', familyMembers.map(m => m.id));
+                }
             } catch (error) {
                 console.error('Error finalizing day:', error);
-                showToast('Fehler beim Abschließen');
+                showToast('Fehler beim Abschließen: ' + error.message, 'warning');
             }
         }
 
