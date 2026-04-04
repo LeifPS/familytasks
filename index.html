@@ -4124,10 +4124,18 @@
                 row.style.display = 'none';
                 updateParentEmailStatus();
             } else {
+                // Always show the input row so user can enter their email
                 toggle.classList.add('active');
                 row.style.display = 'block';
                 const d = getParentEmailData();
-                if (d && d.email) document.getElementById('parentEmailInput').value = d.email;
+                if (d && d.email) {
+                    document.getElementById('parentEmailInput').value = d.email;
+                    d.enabled = true;
+                    localStorage.setItem('ft_parent_email_' + currentUser.id, JSON.stringify(d));
+                } else {
+                    // No email yet — save a pending enabled state so row stays open
+                    localStorage.setItem('ft_parent_email_' + currentUser.id, JSON.stringify({ enabled: true, email: '' }));
+                }
                 updateParentEmailStatus();
             }
         }
@@ -4146,12 +4154,15 @@
             const row    = document.getElementById('parentEmailRow');
             if (!toggle || !status) return;
             const d = getParentEmailData();
+            const pendingOpen = d && d.enabled; // toggle is ON (even if no email yet)
             const enabled = d && d.enabled && d.email;
-            toggle.classList.toggle('active', !!enabled);
-            if (row) row.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+            toggle.classList.toggle('active', !!pendingOpen);
+            if (row) row.style.display = pendingOpen ? 'block' : 'none';
             if (d && d.email) { const el = document.getElementById('parentEmailInput'); if (el) el.value = d.email; }
             if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') {
                 status.textContent = '⚠️ EmailJS noch nicht eingerichtet – siehe SETUP.md';
+            } else if (pendingOpen && !d.email) {
+                status.textContent = '📧 Bitte E-Mail-Adresse eingeben und speichern';
             } else {
                 status.textContent = enabled ? `📧 E-Mails gehen an ${d.email}` : '';
             }
@@ -4175,10 +4186,18 @@
                 row.style.display = 'none';
                 updateChildEmailStatus();
             } else {
+                // Always show the input row so user can enter their email
                 toggle.classList.add('active');
                 row.style.display = 'block';
                 const d = getChildEmailData();
-                if (d && d.email) document.getElementById('childEmailInput').value = d.email;
+                if (d && d.email) {
+                    document.getElementById('childEmailInput').value = d.email;
+                    d.enabled = true;
+                    localStorage.setItem('ft_child_email_' + currentUser.id, JSON.stringify(d));
+                } else {
+                    // No email yet — save a pending enabled state so row stays open
+                    localStorage.setItem('ft_child_email_' + currentUser.id, JSON.stringify({ enabled: true, email: '' }));
+                }
                 updateChildEmailStatus();
             }
         }
@@ -4197,12 +4216,15 @@
             const row    = document.getElementById('childEmailRow');
             if (!toggle || !status) return;
             const d = getChildEmailData();
+            const pendingOpen = d && d.enabled; // toggle is ON (even if no email yet)
             const enabled = d && d.enabled && d.email;
-            toggle.classList.toggle('active', !!enabled);
-            if (row) row.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+            toggle.classList.toggle('active', !!pendingOpen);
+            if (row) row.style.display = pendingOpen ? 'block' : 'none';
             if (d && d.email) { const el = document.getElementById('childEmailInput'); if (el) el.value = d.email; }
             if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') {
                 status.textContent = '⚠️ EmailJS noch nicht eingerichtet – siehe SETUP.md';
+            } else if (pendingOpen && !d.email) {
+                status.textContent = '📧 Bitte E-Mail-Adresse eingeben und speichern';
             } else {
                 status.textContent = enabled ? `📧 E-Mails gehen an ${d.email}` : '';
             }
