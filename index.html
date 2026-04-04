@@ -2128,17 +2128,6 @@
                 <div class="card">
                     <div class="toggle-group">
                         <div>
-                            <div class="toggle-label">Push-Benachrichtigung</div>
-                            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Meldung wenn ein Kind fertig ist</div>
-                        </div>
-                        <div class="toggle-switch" id="parentNotifToggle" onclick="toggleParentNotif()"></div>
-                    </div>
-                    <div id="parentNotifStatus" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
-
-                    <div style="height:1px;background:var(--bg-secondary);margin:16px 0;"></div>
-
-                    <div class="toggle-group">
-                        <div>
                             <div class="toggle-label">E-Mail-Benachrichtigung</div>
                             <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">E-Mail wenn ein Kind fertig ist</div>
                         </div>
@@ -4249,18 +4238,16 @@
                     createdAt: new Date().toISOString(), seen: false
                 }).catch(() => {});
 
-            // E-Mail an alle Eltern die E-Mail aktiviert haben
-            parents.forEach(parent => {
-                const emailData = getParentEmailData(parent.id);
-                if (emailData && emailData.enabled && emailData.email) {
-                    sendEmail(EMAILJS_CONFIG.templateParent, {
-                        to_email:   emailData.email,
-                        child_name: childName,
-                        family_name: currentFamily ? currentFamily.name : 'eure Familie',
-                        time:        new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-                    });
-                }
-            });
+            // E-Mail an den aktuell eingeloggten Elternteil (localStorage ist gerätebezogen)
+            const emailData = getParentEmailData(currentUser.id);
+            if (emailData && emailData.enabled && emailData.email) {
+                sendEmail(EMAILJS_CONFIG.templateParent, {
+                    to_email:   emailData.email,
+                    child_name: childName,
+                    family_name: currentFamily ? currentFamily.name : 'eure Familie',
+                    time:        new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+                });
+            }
         }
 
         function listenForChildDoneNotifs() {
