@@ -4116,13 +4116,11 @@
                     .update({ 'notifyEmail.enabled': false }).catch(() => {});
                 updateParentEmailStatus();
             } else {
+                // Eingabefeld immer anzeigen, egal ob schon eine E-Mail hinterlegt ist
                 toggle.classList.add('active');
                 row.style.display = 'block';
                 const d = getParentEmailData();
                 if (d && d.email) document.getElementById('parentEmailInput').value = d.email;
-                db.collection('families').doc(currentUser.familyId)
-                    .collection('members').doc(currentUser.id)
-                    .update({ 'notifyEmail.enabled': true }).catch(() => {});
                 updateParentEmailStatus();
             }
         }
@@ -4143,12 +4141,15 @@
             const row    = document.getElementById('parentEmailRow');
             if (!toggle || !status) return;
             const d = getParentEmailData();
+            const isOn   = toggle.classList.contains('active');
             const enabled = d && d.enabled && d.email;
-            toggle.classList.toggle('active', !!enabled);
-            if (row) row.style.display = enabled ? 'block' : 'none';
+            // Zeige Eingabefeld wenn Toggle aktiv (auch ohne gespeicherte E-Mail)
+            if (row && isOn) row.style.display = 'block';
             if (d && d.email) { const el = document.getElementById('parentEmailInput'); if (el) el.value = d.email; }
             if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') {
                 status.textContent = 'EmailJS noch nicht eingerichtet';
+            } else if (isOn && !enabled) {
+                status.textContent = 'E-Mail-Adresse eingeben und speichern';
             } else {
                 status.textContent = enabled ? ('E-Mails gehen an ' + d.email) : '';
             }
