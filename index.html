@@ -2299,12 +2299,16 @@
 
         // Send email via EmailJS — silently fails if not configured
         async function sendEmail(templateId, params) {
-            if (typeof emailjs === 'undefined') return;
-            if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') return; // not configured yet
+            console.log('[EmailJS] sendEmail aufgerufen', { templateId, params });
+            if (typeof emailjs === 'undefined') { console.error('[EmailJS] emailjs nicht geladen!'); return; }
+            if (EMAILJS_CONFIG.publicKey === 'DEIN_PUBLIC_KEY') { console.error('[EmailJS] Public Key nicht gesetzt!'); return; }
             try {
-                await emailjs.send(EMAILJS_CONFIG.serviceId, templateId, params);
+                const result = await emailjs.send(EMAILJS_CONFIG.serviceId, templateId, params);
+                console.log('[EmailJS] Erfolg!', result);
+                showToast('📧 E-Mail gesendet!', 'success');
             } catch(e) {
-                console.warn('EmailJS error:', e);
+                console.error('[EmailJS] Fehler:', e);
+                showToast('📧 E-Mail Fehler: ' + (e.text || e.message || JSON.stringify(e)), 'warning');
             }
         }
 
@@ -4237,8 +4241,10 @@
                 }).catch(() => {});
 
             // E-Mail an alle Eltern die in Firestore eine E-Mail hinterlegt haben
+            console.log('[EmailJS] Eltern gefunden:', parents.length, parents.map(p => ({id: p.id, notifyEmail: p.notifyEmail})));
             parents.forEach(parent => {
-                const emailData = getParentEmailData(parent.id); // liest aus familyMembers (Firestore)
+                const emailData = getParentEmailData(parent.id);
+                console.log('[EmailJS] Parent', parent.id, '→ emailData:', emailData);
                 if (emailData && emailData.enabled && emailData.email) {
                     sendEmail(EMAILJS_CONFIG.templateParent, {
                         to_email:    emailData.email,
@@ -4246,6 +4252,8 @@
                         family_name: currentFamily ? currentFamily.name : 'eure Familie',
                         time:        new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
                     });
+                } else {
+                    console.warn('[EmailJS] Kein E-Mail für Parent', parent.id, '- emailData:', emailData);
                 }
             });
         }
