@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FamilyTasks - Aufgaben gemeinsam meistern</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -840,14 +837,11 @@
 
         .confirm-buttons {
             display: flex;
-            justify-content: center;
             gap: 12px;
-            width: 100%;
         }
 
         .confirm-buttons .btn {
             flex: 1;
-            max-width: 140px;
         }
 
         /* Bottom Navigation */
@@ -866,26 +860,17 @@
         }
 
         .nav-item {
-            flex: 1;
-            min-width: 0;
-            min-height: 60px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 4px;
-            padding: 12px 8px;
+            padding: 8px 16px;
             border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all 0.3s ease;
             border: none;
             background: none;
             color: var(--text-muted);
-            -webkit-tap-highlight-color: rgba(255,107,107,0.2);
-        }
-
-        .nav-item:active {
-            transform: scale(0.95);
         }
 
         .nav-item.active {
@@ -898,11 +883,10 @@
         }
 
         .nav-label {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.2px;
-            white-space: nowrap;
+            letter-spacing: 0.3px;
         }
 
         /* Invite Code Display */
@@ -1089,8 +1073,6 @@
             background: white;
             color: var(--success);
             font-weight: 800;
-            display: block;
-            margin: 0 auto;
         }
 
         .finalize-btn:hover {
@@ -1210,147 +1192,6 @@
             box-shadow: var(--shadow-soft);
         }
 
-        /* Enhanced Achievement Styles */
-        .achievements-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .achievement-category {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            box-shadow: var(--shadow-soft);
-        }
-
-        .achievement-category-title {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .achievement-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .achievement-card {
-            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-elevated));
-            border-radius: var(--radius-md);
-            padding: 16px;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .achievement-icon {
-            font-size: 36px;
-            flex-shrink: 0;
-            width: 48px;
-            text-align: center;
-        }
-
-        .achievement-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .achievement-title {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .achievement-desc {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .achievement-card.unlocked {
-            background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(78,205,196,0.1));
-            border-color: var(--accent-secondary);
-            box-shadow: 0 4px 15px rgba(78,205,196,0.2);
-        }
-
-        .achievement-card.unlocked::before {
-            content: '✓';
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            background: var(--success);
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-        }
-
-        .achievement-card.locked {
-            opacity: 0.7;
-            filter: grayscale(0.6);
-        }
-
-        .achievement-card.hidden {
-            background: var(--bg-secondary);
-            border: 2px dashed var(--bg-elevated);
-        }
-
-        .achievement-card.hidden .achievement-icon {
-            filter: blur(6px);
-            opacity: 0.4;
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .achievement-card.hidden .achievement-title {
-            color: var(--text-muted);
-            font-style: italic;
-            font-size: 11px;
-            margin-bottom: 2px;
-        }
-
-        .achievement-card.hidden .achievement-desc {
-            color: var(--text-muted);
-            font-size: 9px;
-            line-height: 1.2;
-        }
-
-        .achievement-icon {
-            font-size: 36px;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .achievement-title {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            line-height: 1.2;
-        }
-
-        .achievement-desc {
-            font-size: 11px;
-            color: var(--text-secondary);
-            line-height: 1.3;
-        }
-
         /* Confetti Effect */
         .confetti-container {
             position: fixed;
@@ -1404,7 +1245,7 @@
 
         .timeline-item {
             position: relative;
-            margin-bottom: 48px;
+            margin-bottom: 20px;
             padding-left: 20px;
         }
 
@@ -1434,7 +1275,7 @@
             font-size: 12px;
             color: var(--text-muted);
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -1444,20 +1285,12 @@
             border-radius: var(--radius-md);
             padding: 14px 16px;
             box-shadow: var(--shadow-soft);
-            margin-bottom: 8px;
         }
 
         .timeline-title {
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 4px;
-        }
-
-        .timeline-member {
-            font-size: 12px;
-            color: var(--accent-secondary);
-            margin-bottom: 4px;
-            font-weight: 600;
         }
 
         .timeline-desc {
@@ -1522,27 +1355,34 @@
             border-radius: 3px;
         }
 
-        /* Toast Notification */
+        /* Toast Notification - improved with colors */
         .toast {
             position: fixed;
             bottom: 100px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: var(--text-primary);
-            color: white;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
             padding: 14px 24px;
             border-radius: var(--radius-md);
             font-weight: 600;
             box-shadow: var(--shadow-strong);
             z-index: 1001;
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-left: 4px solid var(--accent-secondary);
+            max-width: calc(100vw - 40px);
+            text-align: center;
         }
 
         .toast.active {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+
+        .toast.toast-success { border-left-color: var(--success); }
+        .toast.toast-error { border-left-color: var(--danger); }
+        .toast.toast-warning { border-left-color: var(--warning); }
 
         /* Responsive */
         @media (min-width: 480px) {
@@ -1555,6 +1395,349 @@
                 border-radius: var(--radius-xl);
                 margin-bottom: 20px;
             }
+        }
+
+        /* QoL: Motivational quote card */
+        .motivation-card {
+            background: linear-gradient(135deg, rgba(160,108,213,0.2), rgba(78,205,196,0.15));
+            border: 1px solid rgba(78,205,196,0.25);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: fadeIn 0.6s ease 0.3s backwards;
+        }
+
+        .motivation-emoji { font-size: 24px; flex-shrink: 0; }
+
+        .motivation-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        /* QoL: Pull-to-refresh indicator */
+        .ptr-indicator {
+            text-align: center;
+            padding: 12px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .ptr-indicator.visible { display: block; }
+
+        /* QoL: Floating action button for tasks */
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), #FF8E8E);
+            color: white;
+            border: none;
+            font-size: 26px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(255,107,107,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+
+        .fab.visible { display: flex; }
+        .fab:hover { transform: scale(1.1) rotate(45deg); }
+        .fab:active { transform: scale(0.95); }
+
+        /* QoL: Task completion animation overlay */
+        @keyframes taskDone {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+
+        .task-item.just-completed {
+            animation: taskDone 0.4s ease;
+        }
+
+        /* QoL: Day-finalized banner */
+        .day-finalized-banner {
+            background: linear-gradient(135deg, var(--success), #55EFC4);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            color: white;
+            font-weight: 700;
+            animation: bounceIn 0.5s ease;
+        }
+
+        /* QoL: Search bar */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            gap: 10px;
+            margin-bottom: 16px;
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--accent-secondary);
+        }
+
+        .search-bar input {
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-family: 'Nunito', sans-serif;
+            font-size: 15px;
+            flex: 1;
+        }
+
+        .search-bar input::placeholder { color: var(--text-muted); }
+        .search-icon { color: var(--text-muted); font-size: 18px; }
+
+        /* QoL: Streak fire animation on streak card */
+        .stat-card.streak:hover .stat-icon {
+            animation: wiggle 0.4s ease;
+        }
+
+        /* QoL: Task count badge on nav */
+        .nav-badge {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            background: var(--accent-primary);
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+
+        .nav-item { position: relative; }
+
+        /* Hide role-specific nav items by default */
+        .child-nav, .parent-nav { display: none; }
+
+        /* Shown via JS when role is known */
+        .role-child .child-nav { display: flex; }
+        .role-parent .parent-nav { display: flex; }
+
+        /* Logout nav item gets a subtle red tint */
+        .nav-item[data-screen="logout"] { color: var(--danger); opacity: 0.75; }
+        .nav-item[data-screen="logout"]:hover { opacity: 1; background: rgba(248,81,73,0.1); }
+
+        /* QoL: Keyboard shortcut hint on modal */
+        .modal-esc-hint {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 8px 0 4px;
+        }
+
+        /* QoL: Swipe hint on task */
+        @keyframes swipeHint {
+            0%, 100% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(-8px); opacity: 0.6; }
+        }
+
+        .swipe-hint-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 6px 0;
+            animation: swipeHint 2s ease 1s 2;
+        }
+
+        /* QoL: Weekly activity mini-chart */
+        .week-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 60px;
+            padding: 8px 0;
+        }
+        .week-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+        .week-bar { width: 100%; background: var(--accent-secondary); border-radius: 4px 4px 0 0; min-height: 4px; transition: height 0.6s ease; opacity: 0.8; }
+        .week-bar.today { background: var(--accent-primary); opacity: 1; }
+        .week-bar.empty { background: var(--bg-secondary); }
+        .week-bar-label { font-size: 10px; color: var(--text-muted); font-weight: 700; }
+
+        /* QoL: History filter tabs */
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+        .filter-tabs::-webkit-scrollbar { display: none; }
+        .filter-tab { padding: 8px 16px; border-radius: 20px; border: 2px solid var(--bg-secondary); background: var(--bg-card); color: var(--text-secondary); font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s ease; }
+        /* Changelog Modal */
+        .changelog-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-y: auto;
+            z-index: 2000;
+            padding: 24px 16px 48px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .changelog-modal {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 420px;
+            margin: auto;
+            animation: bounceIn 0.5s ease;
+            box-shadow: var(--shadow-strong);
+            overflow: visible;
+        }
+
+        .changelog-header {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            padding: 24px 24px 20px;
+            text-align: center;
+        }
+
+        .changelog-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        .changelog-version {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .changelog-date {
+            font-size: 13px;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .changelog-body {
+            padding: 20px 24px 8px;
+        }
+
+        .changelog-section {
+            margin-bottom: 20px;
+        }
+
+        .changelog-section-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .changelog-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .changelog-item-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .changelog-item-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.45;
+            font-weight: 600;
+        }
+
+        .changelog-item-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .changelog-footer {
+            padding: 12px 24px 24px;
+        }
+
+        .changelog-footer .btn {
+            width: 100%;
+        }
+
+        .changelog-tag-new { color: var(--accent-secondary); }
+        .changelog-tag-fix { color: var(--warning); }
+        .changelog-tag-improve { color: var(--accent-blue); }
+
+        /* Changelog history (older versions) */
+        .changelog-history-entry {
+            margin-bottom: 8px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--bg-secondary);
+        }
+
+        .changelog-history-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s ease;
+        }
+
+        .changelog-history-toggle:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+        .changelog-history-arrow {
+            font-size: 18px;
+            transition: transform 0.25s ease;
+            color: var(--text-muted);
+        }
+
+        .changelog-history-body {
+            padding: 12px 16px 4px;
+            background: var(--bg-card);
         }
     </style>
 </head>
@@ -1628,31 +1811,6 @@
             <button class="btn btn-accent" style="width: 100%; margin-top: 16px;" onclick="joinFamily()">
                 🚀 Beitreten
             </button>
-
-            <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--bg-elevated);">
-                <p style="color: var(--text-secondary); margin-bottom: 12px;">Bereits Mitglied?</p>
-                <button class="btn btn-ghost" style="display: block; margin: 0 auto;" onclick="showScreen('childLoginScreen')">
-                    🔑 Mit Code anmelden
-                </button>
-            </div>
-        </div>
-
-        <!-- Child Login Screen -->
-        <div class="screen" id="childLoginScreen">
-            <div class="header">
-                <button class="btn btn-ghost" onclick="showScreen('welcomeScreen')">← Zurück</button>
-            </div>
-            <h1 style="font-family: 'Fredoka', sans-serif; font-size: 28px; margin-bottom: 8px;">Anmelden 🔑</h1>
-            <p style="color: var(--text-secondary); margin-bottom: 32px;">Gib deinen persönlichen Anmeldecode ein</p>
-            
-            <div class="input-group">
-                <label class="input-label">Dein Anmeldecode</label>
-                <input type="text" class="input-field" id="childLoginCodeInput" placeholder="ABC123" style="text-transform: uppercase; text-align: center; font-size: 24px; letter-spacing: 4px;">
-            </div>
-            
-            <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" onclick="loginChildWithCode()">
-                🔓 Anmelden
-            </button>
         </div>
 
         <!-- Child Dashboard -->
@@ -1666,6 +1824,7 @@
             </div>
 
             <!-- Stats -->
+            <div id="motivationCard"></div>
             <div class="stats-grid">
                 <div class="stat-card streak">
                     <div class="stat-icon">🔥</div>
@@ -1735,9 +1894,60 @@
             </div>
             <div id="achievementsList"></div>
 
-            <button class="btn btn-ghost" style="width: 100%; margin-top: 24px; color: var(--danger);" onclick="logout()">
-                🚪 Abmelden
+            <!-- Weekly Chart -->
+            <div id="weeklyChartContainer"></div>
+
+            <!-- Changelog Button -->
+            <button class="btn btn-ghost" style="width:100%; margin-top:8px; color:var(--text-secondary);" onclick="showChangelogModal()">
+                🆕 Was ist neu? Update-Verlauf ansehen
             </button>
+            <!-- Feedback Button -->
+            <button class="btn btn-ghost" style="width:100%; margin-top:8px; color:var(--text-secondary);" onclick="showScreen('feedbackScreen')">
+                💬 Feedback geben
+            </button>
+        </div>
+
+        <!-- Feedback Screen -->
+        <div class="screen" id="feedbackScreen">
+            <div class="header">
+                <button class="btn btn-ghost" id="feedbackBackBtn" onclick="navigateBackFromFeedback()">← Zurück</button>
+            </div>
+            <h1 style="font-family:'Fredoka',sans-serif;font-size:28px;margin-bottom:6px;">💬 Feedback</h1>
+            <p style="color:var(--text-secondary);margin-bottom:28px;font-size:14px;">Was denkst du? Wünsche, Bugs oder Ideen — alles willkommen!</p>
+
+            <div class="card">
+                <div class="input-group">
+                    <label class="input-label">Kategorie</label>
+                    <select class="input-field" id="feedbackCategory">
+                        <option value="idea">💡 Idee / Wunsch</option>
+                        <option value="bug">🐛 Bug / Problem</option>
+                        <option value="praise">🌟 Lob</option>
+                        <option value="other">💭 Sonstiges</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Kurze Zusammenfassung</label>
+                    <input type="text" class="input-field" id="feedbackTitle" placeholder="z.B. Aufgaben sollten Fotos haben können">
+                </div>
+
+                <div class="input-group" style="margin-bottom:0;">
+                    <label class="input-label">Details (optional)</label>
+                    <textarea class="input-field" id="feedbackText" placeholder="Beschreib es so genau wie du möchtest..." style="min-height:120px;"></textarea>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="submitFeedback()" id="feedbackSubmitBtn">
+                🚀 Abschicken
+            </button>
+
+            <!-- Success state -->
+            <div id="feedbackSuccess" style="display:none; text-align:center; padding:32px 16px;">
+                <div style="font-size:64px;margin-bottom:16px;">🎉</div>
+                <div style="font-family:'Fredoka',sans-serif;font-size:24px;font-weight:700;margin-bottom:8px;">Danke!</div>
+                <div style="color:var(--text-secondary);font-size:14px;margin-bottom:24px;">Dein Feedback wurde gesendet.</div>
+                <button class="btn btn-ghost" onclick="navigateBackFromFeedback()">← Zurück</button>
+            </div>
         </div>
 
         <!-- History/Verlauf Screen -->
@@ -1747,6 +1957,13 @@
                     <div class="header-title">📜 Verlauf</div>
                     <div class="header-subtitle">Deine Aktivitäten & Abschlüsse</div>
                 </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="setHistoryFilter('all', this)">Alle</button>
+                <button class="filter-tab" onclick="setHistoryFilter('task', this)">Aufgaben</button>
+                <button class="filter-tab" onclick="setHistoryFilter('finalized', this)">Abschlüsse</button>
             </div>
 
             <!-- Timeline -->
@@ -1760,7 +1977,7 @@
                     <div class="header-title" id="familyTitle">Familie</div>
                     <div class="header-subtitle" id="parentDateDisplay"></div>
                 </div>
-                <div class="avatar" id="parentAvatar" onclick="showScreen('parentSettingsScreen')">👨</div>
+                <div class="avatar" id="parentAvatar" onclick="navigateTo('settings')">👨</div>
             </div>
 
             <!-- Family Stats Overview -->
@@ -1794,7 +2011,7 @@
         <!-- Parent Settings Screen -->
         <div class="screen" id="parentSettingsScreen">
             <div class="header">
-                <button class="btn btn-ghost" onclick="showScreen('parentDashboard')">← Zurück</button>
+                <button class="btn btn-ghost" onclick="navigateTo('home')">← Zurück</button>
             </div>
             <h1 style="font-family: 'Fredoka', sans-serif; font-size: 28px; margin-bottom: 24px;">⚙️ Einstellungen</h1>
             
@@ -1831,6 +2048,22 @@
                     </div>
                     <span class="settings-arrow">›</span>
                 </div>
+                <div class="settings-item" onclick="showChangelogModal()">
+                    <div class="settings-icon">🆕</div>
+                    <div class="settings-text">
+                        <div class="settings-title">Was ist neu?</div>
+                        <div class="settings-desc">Update-Verlauf & Neuigkeiten</div>
+                    </div>
+                    <span class="settings-arrow">›</span>
+                </div>
+                <div class="settings-item" onclick="showScreen('feedbackScreen')">
+                    <div class="settings-icon">💬</div>
+                    <div class="settings-text">
+                        <div class="settings-title">Feedback geben</div>
+                        <div class="settings-desc">Wünsche, Bugs oder Ideen melden</div>
+                    </div>
+                    <span class="settings-arrow">›</span>
+                </div>
             </div>
 
             <button class="btn btn-ghost" style="width: 100%; margin-top: 24px; color: var(--danger);" onclick="logout()">
@@ -1841,7 +2074,7 @@
         <!-- Manage Tasks Screen -->
         <div class="screen" id="manageTasksScreen">
             <div class="header">
-                <button class="btn btn-ghost" onclick="showScreen('parentSettingsScreen')">← Zurück</button>
+                <button class="btn btn-ghost" onclick="navigateTo('settings')">← Zurück</button>
                 <button class="btn btn-small btn-primary" onclick="showAddTaskModal()">+ Neu</button>
             </div>
             <h1 style="font-family: 'Fredoka', sans-serif; font-size: 24px; margin-bottom: 24px;">📝 Aufgaben verwalten</h1>
@@ -1868,7 +2101,7 @@
         <!-- Manage Members Screen -->
         <div class="screen" id="manageMembersScreen">
             <div class="header">
-                <button class="btn btn-ghost" onclick="showScreen('parentSettingsScreen')">← Zurück</button>
+                <button class="btn btn-ghost" onclick="navigateTo('settings')">← Zurück</button>
             </div>
             <h1 style="font-family: 'Fredoka', sans-serif; font-size: 24px; margin-bottom: 24px;">👥 Mitglieder</h1>
             
@@ -1882,7 +2115,7 @@
         <!-- Family Stats Screen -->
         <div class="screen" id="familyStatsScreen">
             <div class="header">
-                <button class="btn btn-ghost" onclick="showScreen('parentSettingsScreen')">← Zurück</button>
+                <button class="btn btn-ghost" onclick="navigateTo('settings')">← Zurück</button>
             </div>
             <h1 style="font-family: 'Fredoka', sans-serif; font-size: 24px; margin-bottom: 24px;">📊 Statistiken</h1>
             
@@ -1910,16 +2143,45 @@
 
         <!-- Bottom Navigation -->
         <nav class="bottom-nav" id="bottomNav" style="display: none;">
-            <button class="nav-item active" data-screen="home" id="navHome">
+            <!-- Child nav items -->
+            <button class="nav-item child-nav active" data-screen="home" onclick="navigateTo('home')">
                 <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
             </button>
-            <button class="nav-item" data-screen="history" id="navHistory">
+            <button class="nav-item child-nav" data-screen="history" onclick="navigateTo('history')">
                 <span class="nav-icon">📜</span>
+                <span class="nav-label">Verlauf</span>
             </button>
-            <button class="nav-item" data-screen="profile" id="navProfile">
+            <button class="nav-item child-nav" data-screen="profile" onclick="navigateTo('profile')">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Profil</span>
+            </button>
+            <button class="nav-item child-nav" data-screen="logout" onclick="showLogoutConfirm()">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-label">Abmelden</span>
+            </button>
+
+            <!-- Parent nav items -->
+            <button class="nav-item parent-nav active" data-screen="home" onclick="navigateTo('home')">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Übersicht</span>
+            </button>
+            <button class="nav-item parent-nav" data-screen="tasks" onclick="navigateTo('tasks')">
+                <span class="nav-icon">📝</span>
+                <span class="nav-label">Aufgaben</span>
+            </button>
+            <button class="nav-item parent-nav" data-screen="members" onclick="navigateTo('members')">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Familie</span>
+            </button>
+            <button class="nav-item parent-nav" data-screen="settings" onclick="navigateTo('settings')">
                 <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Einstellungen</span>
             </button>
         </nav>
+
+        <!-- FAB for parent -->
+        <button class="fab" id="parentFab" onclick="showAddTaskModal()">+</button>
 
         <!-- Modal Overlay -->
         <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
@@ -1953,64 +2215,210 @@
         let tasks = [];
         let unsubscribers = [];
 
-        // Achievements Definition - Extended with many achievements
-        // hidden: true = requirements hidden until unlocked
+        // ── Changelog (loaded from Firestore) ────────────────────────────
+        // Changelogs werden über changelog-admin.html in Firestore verwaltet.
+        // Collection: "changelogs"  |  Docs sortiert nach createdAt desc
+        // ──────────────────────────────────────────────────────────────────
+
+        let _changelogEntries = [];  // cache
+
+        async function loadChangelogEntries() {
+            if (_changelogEntries.length > 0) return _changelogEntries;
+            try {
+                const snap = await db.collection('changelogs').orderBy('createdAt', 'desc').get();
+                _changelogEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) {
+                console.warn('Changelog konnte nicht geladen werden:', e);
+                _changelogEntries = [];
+            }
+            return _changelogEntries;
+        }
+
+        function renderChangelogSections(sections) {
+            const tagColors = { new: 'changelog-tag-new', fix: 'changelog-tag-fix', improve: 'changelog-tag-improve' };
+            return (sections || []).map(section => `
+                <div class="changelog-section">
+                    <div class="changelog-section-title">${section.title}</div>
+                    ${(section.items || []).map(item => `
+                        <div class="changelog-item">
+                            <div class="changelog-item-icon ${tagColors[item.tag] || ''}">${item.icon}</div>
+                            <div>
+                                <div class="changelog-item-text">${item.text}</div>
+                                ${item.desc ? `<div class="changelog-item-desc">${item.desc}</div>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        // Manuell öffnen — zeigt neuestes + alle älteren eingeklappt
+        async function showChangelogModal() {
+            const existing = document.getElementById('changelogOverlay');
+            if (existing) existing.remove();
+
+            // Overlay: scrollt selbst, zentriert oben
+            const overlay = document.createElement('div');
+            overlay.className = 'changelog-overlay';
+            overlay.id = 'changelogOverlay';
+            overlay.style.cssText = 'align-items:flex-start; overflow-y:auto; padding:24px 16px 40px;';
+            overlay.innerHTML = `<div class="changelog-modal" style="max-height:none; overflow:visible; margin:auto;">
+                <div style="display:flex;align-items:center;justify-content:center;padding:48px 0;">
+                    <div style="width:40px;height:40px;border:4px solid var(--bg-secondary);border-top-color:var(--accent-primary);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+                </div>
+            </div>`;
+            document.body.appendChild(overlay);
+
+            const entries = await loadChangelogEntries();
+            const modal = overlay.querySelector('.changelog-modal');
+
+            if (entries.length === 0) {
+                modal.innerHTML = `
+                    <div class="changelog-header">
+                        <div class="changelog-badge">Updates</div>
+                        <div class="changelog-version">Keine Einträge</div>
+                        <div class="changelog-date">Noch nichts eingetragen</div>
+                    </div>
+                    <div class="changelog-footer">
+                        <button class="btn btn-secondary" onclick="dismissChangelog(false)">✕ Schließen</button>
+                    </div>`;
+                return;
+            }
+
+            const [latest, ...older] = entries;
+
+            // Render all older versions fully visible (no collapse needed — they scroll)
+            const olderHTML = older.length > 0 ? `
+                <div style="border-top:2px solid var(--bg-secondary); margin:0;"></div>
+                <div class="changelog-body" style="padding-top:20px;">
+                    <div class="changelog-section-title" style="margin-bottom:16px; font-size:13px;">
+                        📁 Ältere Updates (${older.length})
+                    </div>
+                    ${older.map((entry, i) => `
+                        <div class="changelog-history-entry" style="margin-bottom:10px;">
+                            <button class="changelog-history-toggle" onclick="toggleHistoryEntry(${i})">
+                                <span>
+                                    <strong>v${entry.version}</strong>
+                                    &nbsp;·&nbsp;${entry.date}
+                                    ${entry.summary ? `<span style="color:var(--text-muted); font-weight:400;"> — ${entry.summary}</span>` : ''}
+                                </span>
+                                <span class="changelog-history-arrow" id="hist-arrow-${i}">›</span>
+                            </button>
+                            <div class="changelog-history-body" id="hist-body-${i}" style="display:none;">
+                                ${renderChangelogSections(entry.sections)}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+
+            modal.innerHTML = `
+                <div class="changelog-header">
+                    <div class="changelog-badge">Was ist neu?</div>
+                    <div class="changelog-version">Version ${latest.version}</div>
+                    <div class="changelog-date">${latest.date}${latest.summary ? ' — ' + latest.summary : ''}</div>
+                </div>
+                <div class="changelog-body">
+                    ${renderChangelogSections(latest.sections)}
+                </div>
+                ${olderHTML}
+                <div class="changelog-footer">
+                    <button class="btn btn-secondary" onclick="dismissChangelog(false)">✕ Schließen</button>
+                </div>
+            `;
+        }
+
+        function toggleHistoryEntry(i) {
+            const body  = document.getElementById('hist-body-'  + i);
+            const arrow = document.getElementById('hist-arrow-' + i);
+            const open  = body.style.display !== 'none';
+            body.style.display    = open ? 'none' : 'block';
+            arrow.style.transform = open ? '' : 'rotate(90deg)';
+        }
+
+        async function checkAndShowChangelog() {
+            const entries = await loadChangelogEntries();
+            if (entries.length === 0) return;
+
+            const latest    = entries[0];
+            const seenKey   = 'familyTasks_changelog_seen_v' + latest.version;
+            if (localStorage.getItem(seenKey)) return;
+
+            const existing = document.getElementById('changelogOverlay');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.className = 'changelog-overlay';
+            overlay.id = 'changelogOverlay';
+            overlay.innerHTML = `
+                <div class="changelog-modal">
+                    <div class="changelog-header">
+                        <div class="changelog-badge">Update verfügbar 🎉</div>
+                        <div class="changelog-version">Version ${latest.version}</div>
+                        <div class="changelog-date">${latest.date}${latest.summary ? ' — ' + latest.summary : ''}</div>
+                    </div>
+                    <div class="changelog-body">
+                        ${renderChangelogSections(latest.sections)}
+                    </div>
+                    <div class="changelog-footer">
+                        <button class="btn btn-primary" onclick="dismissChangelog(true, '${latest.version}')">🎉 Los geht's!</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function dismissChangelog(markSeen = true, version = null) {
+            if (markSeen && version) {
+                localStorage.setItem('familyTasks_changelog_seen_v' + version, '1');
+            }
+            const overlay = document.getElementById('changelogOverlay');
+            if (overlay) {
+                overlay.style.transition = 'opacity 0.25s ease';
+                overlay.style.opacity    = '0';
+                setTimeout(() => overlay.remove(), 250);
+            }
+        }
+
+        // Achievements Definition
         const achievements = {
-            // Streak Achievements
-            streak3: { icon: '🔥', title: 'Auf Feuer', desc: '3 Tage Streak', category: 'streak', hidden: false },
-            streak7: { icon: '💪', title: 'Wochenkrieger', desc: '7 Tage Streak', category: 'streak', hidden: false },
-            streak14: { icon: '🎯', title: 'Halbmonat', desc: '14 Tage Streak', category: 'streak', hidden: true },
-            streak30: { icon: '🏆', title: 'Monatsheld', desc: '30 Tage Streak', category: 'streak', hidden: true },
-            streak50: { icon: '👑', title: 'Legende', desc: '50 Tage Streak', category: 'streak', hidden: true },
-            streak100: { icon: '💎', title: 'Unaufhaltsam', desc: '100 Tage Streak', category: 'streak', hidden: true },
-            
-            // Task Count Achievements
-            firstTask: { icon: '🌟', title: 'Erster Schritt', desc: 'Erste Aufgabe erledigt', category: 'tasks', hidden: false },
-            tasks5: { icon: '📝', title: 'Gewöhnung', desc: '5 Aufgaben erledigt', category: 'tasks', hidden: false },
-            tasks10: { icon: '📚', title: 'Fleißig', desc: '10 Aufgaben erledigt', category: 'tasks', hidden: false },
-            tasks25: { icon: '📖', title: 'Routine', desc: '25 Aufgaben erledigt', category: 'tasks', hidden: false },
-            tasks50: { icon: '🚀', title: 'Aufgabenmeister', desc: '50 Aufgaben erledigt', category: 'tasks', hidden: true },
-            tasks100: { icon: '⭐', title: 'Centurio', desc: '100 Aufgaben erledigt', category: 'tasks', hidden: true },
-            tasks250: { icon: '🔱', title: 'Titan', desc: '250 Aufgaben erledigt', category: 'tasks', hidden: true },
-            tasks500: { icon: '🌟', title: 'Göttlich', desc: '500 Aufgaben erledigt', category: 'tasks', hidden: true },
-            
-            // Points Achievements
-            points50: { icon: '🥉', title: 'Anfänger', desc: '50 Punkte erreicht', category: 'points', hidden: false },
-            points100: { icon: '💯', title: 'Punktesammler', desc: '100 Punkte erreicht', category: 'points', hidden: false },
-            points250: { icon: '🥈', title: 'Sammler', desc: '250 Punkte erreicht', category: 'points', hidden: false },
-            points500: { icon: '🌈', title: 'Superstar', desc: '500 Punkte erreicht', category: 'points', hidden: true },
-            points1000: { icon: '💰', title: 'Reichtum', desc: '1000 Punkte erreicht', category: 'points', hidden: true },
-            points2500: { icon: '👑', title: 'Millionär', desc: '2500 Punkte erreicht', category: 'points', hidden: true },
-            points5000: { icon: '💎', title: 'Milliardär', desc: '5000 Punkte erreicht', category: 'points', hidden: true },
-            
-            // Daily Special Achievements
-            earlyBird: { icon: '🐦', title: 'Früher Vogel', desc: 'Vor 8 Uhr eine Aufgabe erledigt', category: 'special', hidden: true },
-            nightOwl: { icon: '🦉', title: 'Nachteule', desc: 'Nach 20 Uhr eine Aufgabe erledigt', category: 'special', hidden: true },
-            perfectWeek: { icon: '📅', title: 'Perfekte Woche', desc: '7 Tage in Folge alle Aufgaben erledigt', category: 'special', hidden: true },
-            speedDemon: { icon: '⚡', title: 'Blitzschnell', desc: '3 Aufgaben in unter 1 Stunde erledigt', category: 'special', hidden: true },
-            comeback: { icon: '🔄', title: 'Comeback', desc: 'Nach 3 Tagen Pause wieder zurück', category: 'special', hidden: true },
-            weekendWarrior: { icon: '🎉', title: 'Wochenendkrieger', desc: 'Samstag und Sonntag alle Aufgaben erledigt', category: 'special', hidden: true },
-            allRounder: { icon: '🎨', title: 'Alleskönner', desc: 'Alle Aufgabentypen erledigt', category: 'special', hidden: true },
-            
-            // Consistency Achievements
-            consistent3: { icon: '📊', title: 'Beständig', desc: '3 Wochen jeden Tag Aufgaben erledigt', category: 'special', hidden: true },
-            consistentMonth: { icon: '🏅', title: 'Monatssieger', desc: 'Ganzen Monat jeden Tag Aufgaben erledigt', category: 'special', hidden: true },
-            
-            // Secret Achievements (always hidden until unlocked)
-            secretCollector: { icon: '🕵️', title: 'Sammler', desc: '???', category: 'secret', hidden: true, secret: true },
-            secretMaster: { icon: '🔮', title: 'Meister', desc: '???', category: 'secret', hidden: true, secret: true },
-            secretLegend: { icon: '🌌', title: 'Legende', desc: '???', category: 'secret', hidden: true, secret: true }
+            firstTask: { icon: '🌟', title: 'Erster Schritt', desc: 'Erste Aufgabe erledigt' },
+            streak3: { icon: '🔥', title: 'Auf Feuer', desc: '3 Tage Streak' },
+            streak7: { icon: '💪', title: 'Wochenkrieger', desc: '7 Tage Streak' },
+            streak30: { icon: '🏆', title: 'Monatsheld', desc: '30 Tage Streak' },
+            points100: { icon: '💯', title: 'Punktesammler', desc: '100 Punkte erreicht' },
+            points500: { icon: '🌈', title: 'Superstar', desc: '500 Punkte erreicht' },
+            tasks10: { icon: '📚', title: 'Fleißig', desc: '10 Aufgaben erledigt' },
+            tasks50: { icon: '🚀', title: 'Aufgabenmeister', desc: '50 Aufgaben erledigt' }
         };
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
             updateDateDisplays();
-            
-            // Setup navigation event listeners
-            document.getElementById('navHome')?.addEventListener('click', () => navigateTo('home'));
-            document.getElementById('navHistory')?.addEventListener('click', () => navigateTo('history'));
-            document.getElementById('navProfile')?.addEventListener('click', () => navigateTo('profile'));
+
+            // QoL: ESC key closes modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('modalOverlay');
+                    if (modal.classList.contains('active')) closeModal();
+                }
+            });
+
+            // QoL: Update date every minute
+            setInterval(updateDateDisplays, 60000);
+
+            // QoL: Online/offline toast
+            window.addEventListener('offline', () => showToast('⚠️ Keine Internetverbindung', 'warning'));
+            window.addEventListener('online', () => showToast('✅ Wieder online', 'success'));
+
+            // QoL: Prevent accidental page-leave when in app
+            window.addEventListener('beforeunload', (e) => {
+                if (currentUser) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
         });
 
         // Check Authentication
@@ -2035,13 +2443,25 @@
                     setupRealtimeListeners();
                     
                     // Show appropriate dashboard
+                    const nav = document.getElementById('bottomNav');
                     if (currentUser.role === 'parent') {
                         showScreen('parentDashboard');
-                        document.getElementById('bottomNav').style.display = 'flex';
+                        nav.style.display = 'flex';
+                        nav.classList.remove('role-child');
+                        nav.classList.add('role-parent');
+                        const fab = document.getElementById('parentFab');
+                        if (fab) fab.classList.add('visible');
                     } else {
                         showScreen('childDashboard');
-                        document.getElementById('bottomNav').style.display = 'flex';
+                        nav.style.display = 'flex';
+                        nav.classList.remove('role-parent');
+                        nav.classList.add('role-child');
+                        const fab = document.getElementById('parentFab');
+                        if (fab) fab.classList.remove('visible');
                     }
+
+                    // Show changelog if new version
+                    setTimeout(checkAndShowChangelog, 800);
                 } else {
                     logout();
                 }
@@ -2095,6 +2515,13 @@
             document.getElementById('childStreak').textContent = member.streak || 0;
             document.getElementById('childPoints').textContent = member.points || 0;
 
+            // Motivational quote
+            const motCard = document.getElementById('motivationCard');
+            if (motCard) {
+                const q = getMotivationalQuote();
+                motCard.innerHTML = `<div class="motivation-card"><span class="motivation-emoji">${q.emoji}</span><span class="motivation-text">${q.text}</span></div>`;
+            }
+
             // Update avatar
             const avatar = document.getElementById('childAvatar');
             if (member.avatar) {
@@ -2128,6 +2555,10 @@
             const completedTasks = myTasks.filter(t => t.completions && t.completions[completionKey]);
             const completedCount = completedTasks.length;
             const totalCount = myTasks.length;
+            const pendingCount = totalCount - completedCount;
+
+            // Update nav badge with pending tasks
+            updateNavBadge(pendingCount);
 
             document.getElementById('childProgressText').textContent = `${completedCount}/${totalCount} erledigt`;
             document.getElementById('childProgressBar').style.width = totalCount > 0 ? `${(completedCount / totalCount) * 100}%` : '0%';
@@ -2135,8 +2566,21 @@
             // Check if day is finalized
             const isDayFinalized = member.finalizedDays && member.finalizedDays.includes(today);
 
-            // Show/hide finalize section
+            // Show day-finalized banner
             const finalizeSection = document.getElementById('finalizeSection');
+            let finalizedBanner = document.getElementById('dayFinalizedBanner');
+            if (!finalizedBanner) {
+                finalizedBanner = document.createElement('div');
+                finalizedBanner.id = 'dayFinalizedBanner';
+                finalizedBanner.className = 'day-finalized-banner';
+                finalizeSection.parentNode.insertBefore(finalizedBanner, finalizeSection);
+            }
+            if (isDayFinalized) {
+                finalizedBanner.style.display = 'flex';
+                finalizedBanner.innerHTML = '<span>🏆</span><span>Tag abgeschlossen! Großartige Arbeit!</span>';
+            } else {
+                finalizedBanner.style.display = 'none';
+            }
             if (completedCount === totalCount && totalCount > 0 && !isDayFinalized) {
                 finalizeSection.style.display = 'block';
             } else {
@@ -2158,9 +2602,9 @@
                     const isCompleted = task.completions && task.completions[completionKey];
                     const isLocked = isDayFinalized;
                     return `
-                        <div class="task-item ${isCompleted ? 'completed' : ''}">
+                        <div class="task-item ${isCompleted ? 'completed' : ''}" id="taskitem-${task.id}">
                             <div class="task-checkbox ${isCompleted ? 'checked' : ''} ${isLocked ? 'locked' : ''}" 
-                                 onclick="${!isLocked ? `toggleTaskCompletion('${task.id}', ${!isCompleted})` : ''}">
+                                 onclick="${!isLocked ? `animateAndComplete('${task.id}', ${!isCompleted})` : ''}">
                             </div>
                             <div class="task-content">
                                 <div class="task-title">${task.title}</div>
@@ -2170,6 +2614,7 @@
                                     <span class="task-tag badge-${task.type === 'daily' ? 'daily' : task.type === 'rotating' ? 'rotating' : 'once'}">
                                         ${task.type === 'daily' ? 'Täglich' : task.type === 'rotating' ? 'Wechselnd' : 'Einmalig'}
                                     </span>
+                                    ${isCompleted ? '<span class="task-tag" style="background:var(--success);color:white;">✓ Erledigt</span>' : ''}
                                 </div>
                             </div>
                         </div>
@@ -2205,77 +2650,44 @@
                 container.innerHTML = '';
             }
 
-            // Achievement list on profile - organized by categories with hidden/locked states
+            // Achievement list on profile
             const achievementsList = document.getElementById('achievementsList');
             if (achievementsList) {
-                // Group achievements by category
-                const categories = {
-                    streak: { title: '🔥 Streaks', icon: '🔥' },
-                    tasks: { title: '📝 Aufgaben', icon: '📝' },
-                    points: { title: '✦ Punkte', icon: '✦' },
-                    special: { title: '⭐ Besonders', icon: '⭐' },
-                    secret: { title: '🔒 Geheim', icon: '🔒' }
-                };
-                
-                const groupedAchievements = {};
-                Object.entries(achievements).forEach(([key, ach]) => {
-                    if (!groupedAchievements[ach.category]) {
-                        groupedAchievements[ach.category] = [];
-                    }
-                    groupedAchievements[ach.category].push({ key, ...ach });
-                });
-                
-                let html = '<div class="achievements-container">';
-                
-                Object.entries(categories).forEach(([catKey, catInfo]) => {
-                    if (!groupedAchievements[catKey]) return;
-                    
-                    html += `
-                        <div class="achievement-category">
-                            <div class="achievement-category-title">
-                                ${catInfo.icon} ${catInfo.title}
-                            </div>
-                            <div class="achievement-grid">
-                    `;
-                    
-                    groupedAchievements[catKey].forEach(ach => {
-                        const unlocked = userAchievements.includes(ach.key);
-                        const isHidden = ach.hidden && !unlocked;
-                        const isSecret = ach.secret;
-                        
-                        let cardClass = 'achievement-card';
-                        if (unlocked) cardClass += ' unlocked';
-                        else if (isHidden) cardClass += ' hidden';
-                        else cardClass += ' locked';
-                        
-                        const displayIcon = isHidden ? '❓' : ach.icon;
-                        const displayTitle = isHidden ? (isSecret ? '???' : 'Versteckt') : ach.title;
-                        const displayDesc = isHidden ? 'Schalte es frei um zu sehen!' : ach.desc;
-                        
-                        html += `
-                            <div class="${cardClass}" data-achievement="${ach.key}">
-                                <span class="achievement-icon">${displayIcon}</span>
-                                <div class="achievement-content">
-                                    <div class="achievement-title">${displayTitle}</div>
-                                    <div class="achievement-desc">${displayDesc}</div>
+                achievementsList.innerHTML = Object.entries(achievements).map(([key, ach]) => {
+                    const unlocked = userAchievements.includes(key);
+                    return `
+                        <div class="card" style="opacity: ${unlocked ? 1 : 0.4}">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div style="font-size: 36px;">${ach.icon}</div>
+                                <div>
+                                    <div style="font-weight: 700;">${ach.title}</div>
+                                    <div style="font-size: 13px; color: var(--text-secondary);">${ach.desc}</div>
                                 </div>
+                                ${unlocked ? '<span style="margin-left: auto; color: var(--success);">✓</span>' : ''}
                             </div>
-                        `;
-                    });
-                    
-                    html += '</div></div>';
-                });
-                
-                html += '</div>';
-                achievementsList.innerHTML = html;
+                        </div>
+                    `;
+                }).join('');
             }
+        }
+
+        // Animated task completion wrapper
+        function animateAndComplete(taskId, completed) {
+            if (!completed) {
+                showToast('Aufgabe bereits erledigt! ✓', 'success');
+                return;
+            }
+            const el = document.getElementById('taskitem-' + taskId);
+            if (el) el.classList.add('just-completed');
+            setTimeout(() => { if (el) el.classList.remove('just-completed'); }, 400);
+            showTaskConfirmation(taskId);
         }
 
         // Toggle Task Completion
         async function toggleTaskCompletion(taskId, completed) {
             // Prevent unchecking - once done, stays done
             if (!completed) {
-                showToast('Aufgabe bereits erledigt! ✓');
+                showToast('Aufgabe bereits erledigt! ✓', 'success');
                 return;
             }
             showTaskConfirmation(taskId);
@@ -2334,55 +2746,31 @@
                     const memberData = memberDoc.data();
                     const newPoints = (memberData.points || 0) + (task.points || 1);
                     const newTasksCompleted = (memberData.tasksCompleted || 0) + 1;
-                    const streak = memberData.streak || 0;
 
                     const updates = { 
                         points: newPoints,
                         tasksCompleted: newTasksCompleted
                     };
 
-                    // Check for new achievements - comprehensive achievement checking
+                    // Check for new achievements
                     const currentAchievements = memberData.achievements || [];
                     const newAchievements = [...currentAchievements];
-                    
-                    // Helper function to add achievement if not already unlocked
-                    const addAchievement = (key, condition) => {
-                        if (condition && !currentAchievements.includes(key)) {
-                            newAchievements.push(key);
-                        }
-                    };
 
-                    // Task count achievements
-                    addAchievement('firstTask', newTasksCompleted >= 1);
-                    addAchievement('tasks5', newTasksCompleted >= 5);
-                    addAchievement('tasks10', newTasksCompleted >= 10);
-                    addAchievement('tasks25', newTasksCompleted >= 25);
-                    addAchievement('tasks50', newTasksCompleted >= 50);
-                    addAchievement('tasks100', newTasksCompleted >= 100);
-                    addAchievement('tasks250', newTasksCompleted >= 250);
-                    addAchievement('tasks500', newTasksCompleted >= 500);
-
-                    // Points achievements
-                    addAchievement('points50', newPoints >= 50);
-                    addAchievement('points100', newPoints >= 100);
-                    addAchievement('points250', newPoints >= 250);
-                    addAchievement('points500', newPoints >= 500);
-                    addAchievement('points1000', newPoints >= 1000);
-                    addAchievement('points2500', newPoints >= 2500);
-                    addAchievement('points5000', newPoints >= 5000);
-
-                    // Streak achievements (checked on finalize)
-                    addAchievement('streak3', streak >= 3);
-                    addAchievement('streak7', streak >= 7);
-                    addAchievement('streak14', streak >= 14);
-                    addAchievement('streak30', streak >= 30);
-                    addAchievement('streak50', streak >= 50);
-                    addAchievement('streak100', streak >= 100);
-
-                    // Special achievements
-                    const hour = new Date().getHours();
-                    addAchievement('earlyBird', hour < 8);
-                    addAchievement('nightOwl', hour >= 20);
+                    if (newTasksCompleted === 1 && !currentAchievements.includes('firstTask')) {
+                        newAchievements.push('firstTask');
+                    }
+                    if (newTasksCompleted >= 10 && !currentAchievements.includes('tasks10')) {
+                        newAchievements.push('tasks10');
+                    }
+                    if (newTasksCompleted >= 50 && !currentAchievements.includes('tasks50')) {
+                        newAchievements.push('tasks50');
+                    }
+                    if (newPoints >= 100 && !currentAchievements.includes('points100')) {
+                        newAchievements.push('points100');
+                    }
+                    if (newPoints >= 500 && !currentAchievements.includes('points500')) {
+                        newAchievements.push('points500');
+                    }
 
                     if (newAchievements.length > currentAchievements.length) {
                         updates.achievements = newAchievements;
@@ -2455,22 +2843,18 @@
                 const currentAchievements = memberData.achievements || [];
                 const newAchievements = [...currentAchievements];
 
-                const addStreakAchievement = (key, condition) => {
-                    if (condition && !currentAchievements.includes(key)) {
-                        newAchievements.push(key);
-                    }
-                };
-
-                addStreakAchievement('streak3', streak >= 3);
-                addStreakAchievement('streak7', streak >= 7);
-                addStreakAchievement('streak14', streak >= 14);
-                addStreakAchievement('streak30', streak >= 30);
-                addStreakAchievement('streak50', streak >= 50);
-                addStreakAchievement('streak100', streak >= 100);
+                if (streak >= 3 && !currentAchievements.includes('streak3')) {
+                    newAchievements.push('streak3');
+                }
+                if (streak >= 7 && !currentAchievements.includes('streak7')) {
+                    newAchievements.push('streak7');
+                }
+                if (streak >= 30 && !currentAchievements.includes('streak30')) {
+                    newAchievements.push('streak30');
+                }
 
                 if (newAchievements.length > currentAchievements.length) {
                     updates.achievements = newAchievements;
-                    showToast('🏆 Neuer Streak-Erfolg!');
                 }
 
                 await memberRef.update(updates);
@@ -2551,9 +2935,7 @@
                         <div class="empty-icon">📝</div>
                         <div class="empty-title">Keine Aufgaben</div>
                         <div class="empty-desc">Erstelle Aufgaben für deine Kinder</div>
-                        <div style="display: flex; justify-content: center;">
-                            <button class="btn btn-primary btn-small" onclick="showAddTaskModal()">+ Aufgabe erstellen</button>
-                        </div>
+                        <button class="btn btn-primary btn-small" onclick="showAddTaskModal()">+ Aufgabe erstellen</button>
                     </div>
                 `;
             } else {
@@ -2627,11 +3009,6 @@
                         <div class="member-info">
                             <div class="member-name">${member.name}</div>
                             <div class="member-role">${member.role === 'parent' ? '👨‍👩‍👧 Elternteil' : '👧 Kind'}</div>
-                            ${member.role === 'child' && member.loginCode ? `
-                                <div style="font-size: 11px; color: var(--accent-tertiary); margin-top: 4px;">
-                                    🔑 Code: <strong>${member.loginCode}</strong>
-                                </div>
-                            ` : ''}
                         </div>
                         ${member.id !== currentUser.id && member.role !== 'parent' ? `
                             <button class="btn btn-ghost btn-small" style="color: var(--danger);" onclick="removeMember('${member.id}')">Entfernen</button>
@@ -3003,13 +3380,11 @@
 
                 const familyDoc = familySnapshot.docs[0];
                 const userId = generateId();
-                const loginCode = role === 'child' ? generateCode() : null;
 
                 // Add member
                 await db.collection('families').doc(familyDoc.id).collection('members').doc(userId).set({
                     name,
                     role,
-                    loginCode,
                     points: 0,
                     streak: 0,
                     achievements: [],
@@ -3028,11 +3403,6 @@
 
                 await loadUserData();
                 showToast(`Willkommen in der Familie! ${role === 'parent' ? '👨‍👩‍👧' : '🎉'}`);
-                
-                // Show login code for new child
-                if (role === 'child' && loginCode) {
-                    showChildLoginCode(loginCode, name);
-                }
             } catch (error) {
                 console.error('Error joining family:', error);
                 showToast('Fehler beim Beitreten');
@@ -3065,47 +3435,13 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Resize and compress image before uploading
-            const maxWidth = 200;
-            const maxHeight = 200;
-            const quality = 0.7;
-
-            const img = new Image();
-            img.onload = async () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-
-                // Calculate new dimensions
-                if (width > height) {
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
-                } else {
-                    if (height > maxHeight) {
-                        width *= maxHeight / height;
-                        height = maxHeight;
-                    }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // Convert to compressed base64
-                const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-
-                // Check size (Firestore limit ~1MB)
-                if (compressedBase64.length > 900000) {
-                    showToast('Bild zu groß - bitte kleineres Bild wählen');
-                    return;
-                }
-
+            // Convert to base64 (simplified - in production use Firebase Storage)
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64 = e.target.result;
                 try {
                     await db.collection('families').doc(currentUser.familyId).collection('members').doc(currentUser.id).update({
-                        avatar: compressedBase64
+                        avatar: base64
                     });
                     showToast('Profilbild aktualisiert!');
                 } catch (error) {
@@ -3113,12 +3449,7 @@
                     showToast('Fehler beim Hochladen');
                 }
             };
-
-            img.onerror = () => {
-                showToast('Fehler beim Laden des Bildes');
-            };
-
-            img.src = URL.createObjectURL(file);
+            reader.readAsDataURL(file);
         }
 
         // Remove Member
@@ -3166,86 +3497,78 @@
             showScreen('welcomeScreen');
         }
 
-        // Navigation with debounce to prevent double-clicks
-        let navigating = false;
+        // Navigation - with debounce to prevent double-tap issues
+        let _navDebounce = false;
         function navigateTo(screen) {
-            if (navigating) return;
-            if (!currentUser) return;
-            
-            navigating = true;
-            
-            try {
-                // Immediate visual feedback
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.classList.remove('active');
-                    if (item.dataset.screen === screen) {
-                        item.classList.add('active');
-                    }
-                });
+            if (_navDebounce) return;
+            _navDebounce = true;
+            setTimeout(() => { _navDebounce = false; }, 400);
 
-                if (currentUser.role === 'child') {
-                    switch (screen) {
-                        case 'home':
-                            showScreen('childDashboard');
-                            break;
-                        case 'history':
-                            showScreen('historyScreen');
-                            // Show loading immediately
-                            const historyTimeline = document.getElementById('historyTimeline');
-                            if (historyTimeline) {
-                                historyTimeline.innerHTML = '<div class="loader"></div>';
+            // Update active state — only for the relevant role's items
+            const roleClass = currentUser.role === 'parent' ? '.parent-nav' : '.child-nav';
+            document.querySelectorAll(roleClass).forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.screen === screen) item.classList.add('active');
+            });
+
+            if (currentUser.role === 'child') {
+                switch (screen) {
+                    case 'home':
+                        showScreen('childDashboard');
+                        break;
+                    case 'history':
+                        showScreen('historyScreen');
+                        renderHistoryTimeline();
+                        break;
+                    case 'profile':
+                        showScreen('childProfileScreen');
+                        const member = familyMembers.find(m => m.id === currentUser.id);
+                        if (member) {
+                            document.getElementById('profileNameInput').value = member.name;
+                            const profileAvatar = document.getElementById('profileAvatar');
+                            if (member.avatar) {
+                                profileAvatar.innerHTML = `<img src="${member.avatar}" alt="">`;
+                            } else {
+                                profileAvatar.textContent = member.name.charAt(0).toUpperCase();
                             }
-                            // Use requestAnimationFrame for smoother transition
-                            requestAnimationFrame(() => {
-                                setTimeout(() => renderHistoryTimeline(), 50);
-                            });
-                            break;
-                        case 'profile':
-                            showScreen('childProfileScreen');
-                            // Pre-fill profile form
-                            const member = familyMembers.find(m => m.id === currentUser.id);
-                            if (member) {
-                                document.getElementById('profileNameInput').value = member.name;
-                                const profileAvatar = document.getElementById('profileAvatar');
-                                if (member.avatar) {
-                                    profileAvatar.innerHTML = `<img src="${member.avatar}" alt="">`;
-                                } else {
-                                    profileAvatar.textContent = member.name.charAt(0).toUpperCase();
-                                }
-                            }
-                            break;
-                    }
-                } else {
-                    // Parent navigation
-                    switch (screen) {
-                        case 'home':
-                            showScreen('parentDashboard');
-                            break;
-                        case 'history':
-                            showScreen('historyScreen');
-                            // Show loading immediately
-                            const historyTimeline = document.getElementById('historyTimeline');
-                            if (historyTimeline) {
-                                historyTimeline.innerHTML = '<div class="loader"></div>';
-                            }
-                            // Use requestAnimationFrame for smoother transition
-                            requestAnimationFrame(() => {
-                                setTimeout(() => renderHistoryTimeline(), 50);
-                            });
-                            break;
-                        case 'profile':
-                            showScreen('parentSettingsScreen');
-                            break;
-                    }
+                        }
+                        renderWeeklyChart();
+                        break;
                 }
-            } catch (error) {
-                console.error('Navigation error:', error);
+            } else {
+                // Parent navigation
+                switch (screen) {
+                    case 'home':
+                        showScreen('parentDashboard');
+                        break;
+                    case 'tasks':
+                        showScreen('manageTasksScreen');
+                        break;
+                    case 'members':
+                        showScreen('manageMembersScreen');
+                        break;
+                    case 'settings':
+                        showScreen('parentSettingsScreen');
+                        break;
+                }
             }
-            
-            // Reset navigation lock after animation
-            setTimeout(() => {
-                navigating = false;
-            }, 300);
+        }
+
+        // Logout confirmation for children
+        function showLogoutConfirm() {
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="confirm-dialog" style="max-width: 100%;">
+                    <div class="confirm-icon">🚪</div>
+                    <div class="confirm-title">Abmelden?</div>
+                    <div class="confirm-message">Du wirst abgemeldet. Deine Punkte und dein Streak bleiben gespeichert.</div>
+                    <div class="confirm-buttons">
+                        <button class="btn btn-secondary" onclick="closeModal()">Abbrechen</button>
+                        <button class="btn btn-danger" onclick="closeModal(); logout()">Abmelden</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
         }
 
         // Screen Management
@@ -3262,19 +3585,57 @@
             document.getElementById('modalOverlay').classList.remove('active');
         }
 
-        // Toast Notification
-        function showToast(message) {
+        // Toast Notification - improved
+        let _toastTimer = null;
+        function showToast(message, type = 'default') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
+            toast.className = 'toast';
+            if (type !== 'default') toast.classList.add('toast-' + type);
             toast.classList.add('active');
-            setTimeout(() => {
+            if (_toastTimer) clearTimeout(_toastTimer);
+            _toastTimer = setTimeout(() => {
                 toast.classList.remove('active');
             }, 3000);
+            // Haptic feedback on supported devices
+            if (navigator.vibrate) navigator.vibrate(30);
         }
 
         // Loading Overlay
         function showLoading(show) {
             document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+
+        // Motivational quotes
+        const motivationalQuotes = [
+            { emoji: '💪', text: 'Jeden Tag ein bisschen besser – das reicht!' },
+            { emoji: '🌟', text: 'Du schaffst das! Kleine Schritte zählen genauso.' },
+            { emoji: '🚀', text: 'Dranbleiben macht den Unterschied!' },
+            { emoji: '🏆', text: 'Champions machen es auch, wenn sie keine Lust haben.' },
+            { emoji: '🌈', text: 'Nach dem Aufräumen kommt das Spielen!' },
+            { emoji: '🔥', text: 'Dein Streak wartet auf dich!' },
+            { emoji: '🎯', text: 'Fokus, erledigen, Punkte kassieren!' },
+            { emoji: '🌺', text: 'Du bist großartig – und das beweist du jeden Tag!' },
+        ];
+
+        function getMotivationalQuote() {
+            const idx = new Date().getDate() % motivationalQuotes.length;
+            return motivationalQuotes[idx];
+        }
+
+        // Update pending task badge on nav
+        function updateNavBadge(pendingCount) {
+            let badge = document.querySelector('.nav-item[data-screen="home"] .nav-badge');
+            if (pendingCount > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'nav-badge';
+                    document.querySelector('.nav-item[data-screen="home"]').appendChild(badge);
+                }
+                badge.textContent = pendingCount;
+            } else if (badge) {
+                badge.remove();
+            }
         }
 
         // Update Date Displays
@@ -3293,85 +3654,6 @@
                 code += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return code;
-        }
-
-        // Show Child Login Code after registration
-        function showChildLoginCode(code, name) {
-            const modalBody = document.getElementById('modalBody');
-            modalBody.innerHTML = `
-                <div class="confirm-dialog" style="max-width: 100%;">
-                    <div class="confirm-icon">🔑</div>
-                    <div class="confirm-title">Anmeldecode</div>
-                    <div class="confirm-message">
-                        Mit diesem Code kannst du dich später wieder anmelden.<br><br>
-                        <div class="invite-code-box" style="font-size: 32px; letter-spacing: 6px;">
-                            ${code}
-                        </div>
-                        <div style="margin-top: 16px; font-size: 13px; color: var(--text-muted);">
-                        </div>
-                    </div>
-                    <div class="confirm-buttons">
-                        <button class="btn btn-primary" onclick="closeModal(); showToast('Willkommen! 🎉');">Verstanden</button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('modalOverlay').classList.add('active');
-        }
-
-        // Login child with code
-        async function loginChildWithCode() {
-            const code = document.getElementById('childLoginCodeInput').value.trim().toUpperCase();
-            
-            if (!code || code.length !== 6) {
-                showToast('Bitte gib einen gültigen Code ein');
-                return;
-            }
-
-            showLoading(true);
-
-            try {
-                // Search all families for member with this login code
-                const familiesSnapshot = await db.collection('families').get();
-                let foundMember = null;
-                let foundFamilyId = null;
-
-                for (const familyDoc of familiesSnapshot.docs) {
-                    const membersSnapshot = await db.collection('families')
-                        .doc(familyDoc.id)
-                        .collection('members')
-                        .where('loginCode', '==', code)
-                        .where('role', '==', 'child')
-                        .get();
-                    
-                    if (!membersSnapshot.empty) {
-                        foundMember = membersSnapshot.docs[0];
-                        foundFamilyId = familyDoc.id;
-                        break;
-                    }
-                }
-
-                if (!foundMember) {
-                    showToast('Ungültiger Anmeldecode');
-                    showLoading(false);
-                    return;
-                }
-
-                // Save to localStorage
-                currentUser = {
-                    id: foundMember.id,
-                    familyId: foundFamilyId,
-                    role: 'child'
-                };
-                localStorage.setItem('familyTasks_user', JSON.stringify(currentUser));
-
-                await loadUserData();
-                showToast(`Willkommen zurück, ${foundMember.data().name}! 👋`);
-            } catch (error) {
-                console.error('Error logging in:', error);
-                showToast('Fehler beim Anmelden');
-            }
-
-            showLoading(false);
         }
 
         // Generate Random ID
@@ -3403,90 +3685,71 @@
             }, 4000);
         }
 
+        // History filter state
+        let _historyFilter = 'all';
+
+        function setHistoryFilter(filter, btn) {
+            _historyFilter = filter;
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderHistoryTimeline();
+        }
+
         // Render History Timeline
         function renderHistoryTimeline() {
             const timeline = document.getElementById('historyTimeline');
+            const member = familyMembers.find(m => m.id === currentUser.id);
             
-            // Check if data is ready
-            if (!currentUser || !familyMembers || familyMembers.length === 0) {
-                timeline.innerHTML = '<div class="timeline-empty"><div class="loader"></div></div>';
+            if (!member) {
+                timeline.innerHTML = '<div class="timeline-empty"><div class="timeline-empty-icon">📭</div><div>Keine Daten verfügbar</div></div>';
                 return;
             }
-            
-            const isParent = currentUser.role === 'parent';
-            
+
             // Collect all history items
             const historyItems = [];
-            
-            // Get all members to display (for parent: all children, for child: just self)
-            const membersToShow = isParent 
-                ? familyMembers.filter(m => m.role === 'child')
-                : familyMembers.filter(m => m.id === currentUser.id);
 
-            membersToShow.forEach(member => {
-                // Add finalized days for each member
-                if (member.finalizedDays && member.finalizedDays.length > 0) {
-                    member.finalizedDays.forEach(day => {
-                        historyItems.push({
-                            type: 'finalized',
-                            date: day,
-                            memberName: member.name,
-                            memberId: member.id,
-                            title: `🎉 ${member.name} hat den Tag abgeschlossen!`,
-                            desc: 'Alle Aufgaben erledigt - Streak erhöht!',
-                            points: null
-                        });
+            // Add finalized days
+            if (member.finalizedDays && member.finalizedDays.length > 0) {
+                member.finalizedDays.forEach(day => {
+                    historyItems.push({
+                        type: 'finalized',
+                        date: day,
+                        title: '🎉 Tag abgeschlossen!',
+                        desc: 'Alle Aufgaben erledigt – Streak erhöht!',
+                        points: null
+                    });
+                });
+            }
+
+            // Add completed tasks
+            tasks.forEach(task => {
+                if (task.completions) {
+                    Object.entries(task.completions).forEach(([key, completion]) => {
+                        if (completion.userId === currentUser.id) {
+                            const date = key.split('_')[0];
+                            historyItems.push({
+                                type: 'task',
+                                date: date,
+                                title: `✓ ${task.title}`,
+                                desc: 'Aufgabe erledigt',
+                                points: task.points || 1
+                            });
+                        }
                     });
                 }
             });
 
-            // Add completed tasks from task completions
-            if (tasks && tasks.length > 0) {
-                tasks.forEach(task => {
-                    if (task.completions) {
-                        Object.entries(task.completions).forEach(([key, completion]) => {
-                            // For parent: show all completions, for child: show only own
-                            if (isParent || completion.userId === currentUser.id) {
-                                const date = key.split('_')[0];
-                                const member = familyMembers.find(m => m.id === completion.userId);
-                                const memberName = member ? member.name : 'Unbekannt';
-                                
-                                historyItems.push({
-                                    type: 'task',
-                                    date: date,
-                                    memberName: memberName,
-                                    memberId: completion.userId,
-                                    title: `✓ ${task.title}`,
-                                    desc: task.description || 'Aufgabe erledigt',
-                                    points: task.points || 1,
-                                    completedAt: completion.completedAt
-                                });
-                            }
-                        });
-                    }
-                });
-            }
+            // Apply filter
+            const filtered = _historyFilter === 'all' ? historyItems
+                : historyItems.filter(i => i.type === _historyFilter);
 
-            // Sort by date (newest first), then by completedAt time
-            historyItems.sort((a, b) => {
-                const dateCompare = new Date(b.date) - new Date(a.date);
-                if (dateCompare !== 0) return dateCompare;
-                // If same date, sort by completion time if available
-                if (a.completedAt && b.completedAt) {
-                    return new Date(b.completedAt) - new Date(a.completedAt);
-                }
-                return 0;
-            });
-
-            // Limit to last 100 items for performance
-            const limitedItems = historyItems.slice(0, 100);
+            // Sort by date (newest first)
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             // Group by date
             const grouped = {};
-            limitedItems.forEach(item => {
-                if (!grouped[item.date]) {
-                    grouped[item.date] = [];
-                }
+            filtered.forEach(item => {
+                if (!grouped[item.date]) grouped[item.date] = [];
                 grouped[item.date].push(item);
             });
 
@@ -3506,40 +3769,141 @@
                 const date = new Date(dateStr);
                 const today = new Date().toISOString().split('T')[0];
                 const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-                
                 if (dateStr === today) return 'Heute';
                 if (dateStr === yesterday) return 'Gestern';
                 return date.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
             };
 
-            // Build HTML using array join for better performance
-            const html = ['<div class="timeline">'];
-            
-            Object.entries(grouped).forEach(([date, items]) => {
-                const isFinalized = items.some(i => i.type === 'finalized');
-                html.push(`<div class="timeline-item ${isFinalized ? 'finalized' : 'task-completed'}">`);
-                html.push(`<div class="timeline-date">${formatDate(date)}</div>`);
-                
-                items.forEach(item => {
-                    html.push('<div class="timeline-content">');
-                    html.push(`<div class="timeline-title">${item.title}</div>`);
-                    if (isParent) {
-                        html.push(`<div class="timeline-member">👤 ${item.memberName}</div>`);
-                    }
-                    html.push(`<div class="timeline-desc">${item.desc}</div>`);
-                    if (item.points) {
-                        html.push(`<div class="timeline-points">+${item.points} ✦</div>`);
-                    }
-                    html.push('</div>');
+            timeline.innerHTML = '<div class="timeline">' + 
+                Object.entries(grouped).map(([date, items]) => `
+                    <div class="timeline-item ${items.some(i => i.type === 'finalized') ? 'finalized' : 'task-completed'}">
+                        <div class="timeline-date">${formatDate(date)}</div>
+                        ${items.map(item => `
+                            <div class="timeline-content">
+                                <div class="timeline-title">${item.title}</div>
+                                <div class="timeline-desc">${item.desc}</div>
+                                ${item.points ? `<div class="timeline-points">+${item.points} ✦</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('') + 
+                '</div>';
+        }
+
+        // Render weekly activity chart on profile
+        function renderWeeklyChart() {
+            const container = document.getElementById('weeklyChartContainer');
+            if (!container) return;
+
+            const member = familyMembers.find(m => m.id === currentUser.id);
+            if (!member) return;
+
+            const dayNames = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+
+            // Build last 7 days
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                days.push({
+                    dateStr: d.toISOString().split('T')[0],
+                    label: dayNames[d.getDay()],
+                    isToday: i === 0
                 });
-                
-                html.push('</div>');
+            }
+
+            // Count completed tasks per day
+            const counts = days.map(day => {
+                let count = 0;
+                tasks.forEach(task => {
+                    const key = `${day.dateStr}_${currentUser.id}`;
+                    if (task.completions && task.completions[key]) count++;
+                });
+                return count;
             });
-            
-            html.push('</div>');
-            
-            // Single DOM update
-            timeline.innerHTML = html.join('');
+
+            const maxCount = Math.max(...counts, 1);
+
+            container.innerHTML = `
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">📊 Diese Woche</span>
+                        <span style="color: var(--accent-tertiary); font-weight: 700;">${counts.reduce((a,b)=>a+b,0)} ✦ erledigt</span>
+                    </div>
+                    <div class="week-chart">
+                        ${days.map((day, i) => `
+                            <div class="week-bar-wrap">
+                                <div class="week-bar ${day.isToday ? 'today' : ''} ${counts[i] === 0 ? 'empty' : ''}"
+                                     style="height: ${Math.max(4, (counts[i] / maxCount) * 48)}px"></div>
+                                <div class="week-bar-label">${day.label}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        // ── Feedback ──────────────────────────────────────────────────────
+        function navigateBackFromFeedback() {
+            // Reset form state
+            document.getElementById('feedbackSuccess').style.display = 'none';
+            document.getElementById('feedbackSubmitBtn').style.display = 'block';
+            document.querySelector('#feedbackScreen .card').style.display = 'block';
+            document.getElementById('feedbackTitle').value = '';
+            document.getElementById('feedbackText').value = '';
+            document.getElementById('feedbackCategory').value = 'idea';
+
+            if (currentUser.role === 'parent') {
+                navigateTo('settings');
+            } else {
+                navigateTo('profile');
+            }
+        }
+
+        async function submitFeedback() {
+            const title    = document.getElementById('feedbackTitle').value.trim();
+            const text     = document.getElementById('feedbackText').value.trim();
+            const category = document.getElementById('feedbackCategory').value;
+
+            if (!title) {
+                showToast('Bitte eine kurze Zusammenfassung eingeben', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('feedbackSubmitBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Wird gesendet…';
+
+            const member = familyMembers.find(m => m.id === currentUser.id);
+            const categoryLabels = { idea: '💡 Idee', bug: '🐛 Bug', praise: '🌟 Lob', other: '💭 Sonstiges' };
+
+            try {
+                await db.collection('feedback').add({
+                    title,
+                    text,
+                    category,
+                    categoryLabel: categoryLabels[category] || category,
+                    authorName:    member ? member.name : 'Unbekannt',
+                    authorRole:    currentUser.role,
+                    familyId:      currentUser.familyId,
+                    familyName:    currentFamily ? currentFamily.name : '',
+                    status:        'new',   // new | read | done
+                    createdAt:     new Date().toISOString()
+                });
+
+                // Show success
+                document.querySelector('#feedbackScreen .card').style.display = 'none';
+                btn.style.display = 'none';
+                document.getElementById('feedbackSuccess').style.display = 'block';
+                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+
+            } catch (err) {
+                console.error('Feedback error:', err);
+                showToast('Fehler beim Senden – bitte nochmal versuchen', 'error');
+                btn.disabled = false;
+                btn.textContent = '🚀 Abschicken';
+            }
         }
     </script>
 </body>
