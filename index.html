@@ -2094,6 +2094,19 @@
                         </div>
                         <div class="toggle-switch" id="parentEmailToggle" onclick="toggleParentEmail()"></div>
                     </div>
+                    <div class="toggle-group">
+                        <div>
+                            <div class="toggle-label">Changelog-Benachrichtigungen</div>
+                            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Update-Hinweise anzeigen</div>
+                        </div>
+                        <select class="input-field" id="changelogSetting" onchange="saveChangelogSetting()" style="width:140px; font-size:12px; padding:6px;">
+                            <option value="all">Alle Updates</option>
+                            <option value="changes">Nur Änderungen</option>
+                            <option value="major">Große Updates</option>
+                            <option value="revamp">Nur Revamps</option>
+                            <option value="none">Keine</option>
+                        </select>
+                    </div>
                     <div id="parentEmailRow" style="display:none; margin-top:12px;">
                         <label class="input-label">Deine E-Mail-Adresse</label>
                         <div style="display:flex;gap:8px;">
@@ -2401,10 +2414,20 @@
             const entries = await loadChangelogEntries();
             if (entries.length === 0) return;
 
-            const latest    = entries[0];
-            const seenKey   = 'familyTasks_changelog_seen_v' + latest.version;
-            if (localStorage.getItem(seenKey)) return;
-
+            const latest = entries[0];
+            
+            // Prüfen ob Changelog laut Einstellung angezeigt werden soll
+            const lastSeenKey = 'familyTasks_changelog_last_seen_version';
+            const lastSeenVersion = localStorage.getItem(lastSeenKey);
+            
+            if (!shouldShowChangelog(latest.version, lastSeenVersion)) {
+                return;
+            }
+            
+            // Speichern als gesehen
+            localStorage.setItem(lastSeenKey, latest.version);
+            
+            // Changelog anzeigen
             const existing = document.getElementById('changelogOverlay');
             if (existing) existing.remove();
 
@@ -2422,7 +2445,7 @@
                         ${renderChangelogSections(latest.sections)}
                     </div>
                     <div class="changelog-footer">
-                        <button class="btn btn-primary" onclick="dismissChangelog(true, '${latest.version}')">🎉 Verstanden</button>
+                        <button class="btn btn-primary" onclick="dismissChangelog(false)">🎉 Verstanden</button>
                     </div>
                 </div>
             `;
@@ -2438,6 +2461,59 @@
                 overlay.style.transition = 'opacity 0.25s ease';
                 overlay.style.opacity    = '0';
                 setTimeout(() => overlay.remove(), 250);
+            }
+        }
+
+        // ── Changelog Einstellungen ─────────────────────────────────────────
+
+        function getChangelogSetting() {
+            return localStorage.getItem('familyTasks_changelog_setting') || 'all';
+        }
+
+        function saveChangelogSetting() {
+            const select = document.getElementById('changelogSetting');
+            if (select) {
+                localStorage.setItem('familyTasks_changelog_setting', select.value);
+                showToast('Changelog-Einstellung gespeichert', 'success');
+            }
+        }
+
+        function loadChangelogSetting() {
+            const select = document.getElementById('changelogSetting');
+            if (select) {
+                select.value = getChangelogSetting();
+            }
+        }
+
+        // Version-Vergleich für Changelog-Filter
+        function shouldShowChangelog(newVersion, lastSeenVersion) {
+            const setting = getChangelogSetting();
+            if (setting === 'none') return false;
+
+            // Keine letzte Version → zeigen (erster Start)
+            if (!lastSeenVersion) return true;
+
+            const [newMajor, newMinor, newPatch] = newVersion.split('.').map(Number);
+            const [oldMajor, oldMinor, oldPatch] = lastSeenVersion.split('.').map(Number);
+
+            // Major-Version ändert sich (z.B. 1.x → 2.x)
+            const isMajorChange = newMajor !== oldMajor;
+            // Minor-Version ändert sich (z.B. 1.1 → 1.2)
+            const isMinorChange = newMajor === oldMajor && newMinor !== oldMinor;
+            // Patch-Version ändert sich (z.B. 1.1.1 → 1.1.2)
+            const isPatchChange = newMajor === oldMajor && newMinor === oldMinor && newPatch !== oldPatch;
+
+            switch (setting) {
+                case 'all':      // Alle Updates
+                    return true;
+                case 'changes':  // Nur Änderungen (Patch und höher)
+                    return isPatchChange || isMinorChange || isMajorChange;
+                case 'major':    // Große Updates (Minor und höher)
+                    return isMinorChange || isMajorChange;
+                case 'revamp':   // Nur Major-Versionen
+                    return isMajorChange;
+                default:
+                    return true;
             }
         }
 
@@ -3629,6 +3705,7 @@
                     case 'settings':
                         showScreen('parentSettingsScreen');
                         updateParentNotifStatus();
+                        loadChangelogSetting();
                         break;
                 }
             }
