@@ -2414,7 +2414,7 @@
             overlay.innerHTML = `
                 <div class="changelog-modal">
                     <div class="changelog-header">
-                        <div class="changelog-badge">Update verfügbar 🎉</div>
+                        <div class="changelog-badge">App aktualisiert 🎉</div>
                         <div class="changelog-version">Version ${latest.version}</div>
                         <div class="changelog-date">${latest.date}${latest.summary ? ' — ' + latest.summary : ''}</div>
                     </div>
@@ -2422,7 +2422,7 @@
                         ${renderChangelogSections(latest.sections)}
                     </div>
                     <div class="changelog-footer">
-                        <button class="btn btn-primary" onclick="dismissChangelog(true, '${latest.version}')">🎉 Los geht's!</button>
+                        <button class="btn btn-primary" onclick="dismissChangelog(true, '${latest.version}')">🎉 Verstanden</button>
                     </div>
                 </div>
             `;
@@ -3082,7 +3082,7 @@
                             <div class="member-name">${member.name}</div>
                             <div class="member-role">${member.role === 'parent' ? '👨‍👩‍👧 Elternteil' : '👧 Kind'}</div>
                         </div>
-                        ${member.id !== currentUser.id && member.role !== 'parent' ? `
+                        ${member.id !== currentUser.id ? `
                             <button class="btn btn-ghost btn-small" style="color: var(--danger);" onclick="removeMember('${member.id}')">Entfernen</button>
                         ` : ''}
                     </div>
@@ -3529,12 +3529,16 @@
             const member = familyMembers.find(m => m.id === memberId);
             if (!member) return;
 
+            const isParent = member.role === 'parent';
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
                 <div class="confirm-dialog" style="max-width: 100%;">
                     <div class="confirm-icon">⚠️</div>
                     <div class="confirm-title">${member.name} entfernen?</div>
-                    <div class="confirm-message">Diese Person wird aus der Familie entfernt und verliert alle Punkte und Erfolge.</div>
+                    <div class="confirm-message">${isParent
+                        ? 'Dieses Elternteil wird aus der Familie entfernt und verliert den Zugang zur Familie.'
+                        : 'Diese Person wird aus der Familie entfernt und verliert alle Punkte und Erfolge.'
+                    }</div>
                     <div class="confirm-buttons">
                         <button class="btn btn-secondary" onclick="closeModal()">Abbrechen</button>
                         <button class="btn btn-danger" onclick="confirmRemoveMember('${memberId}')">Entfernen</button>
