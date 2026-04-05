@@ -1771,6 +1771,19 @@
                     🔗 Familie beitreten
                 </button>
             </div>
+            
+            <!-- Tester Section -->
+            <div style="margin-top: 40px; padding: 20px; background: var(--bg-card); border-radius: var(--radius-md); max-width: 320px; width: 100%;">
+                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; text-align: center; font-weight: 600;">🧪 Schnell-Test (ohne Einladungscode)</div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-small" style="flex: 1; background: var(--bg-elevated); font-size: 13px;" onclick="quickTest('parent')">
+                        👨‍👩‍👧 Als Elternteil testen
+                    </button>
+                    <button class="btn btn-small" style="flex: 1; background: var(--bg-elevated); font-size: 13px;" onclick="quickTest('child')">
+                        👧 Als Kind testen
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Create Family Screen -->
@@ -1829,6 +1842,20 @@
                 <div class="avatar" id="childAvatar" onclick="showScreen('childProfileScreen')">M</div>
             </div>
 
+            <!-- Deadline Countdown - GANZ OBEN -->
+            <div class="card" id="deadlineCard" style="background: linear-gradient(135deg, rgba(255,107,107,0.2), rgba(160,108,213,0.15)); border: 1px solid rgba(255,107,107,0.3); margin-top: 0;">
+                <div class="card-header">
+                    <span class="card-title" id="deadlineTitle">⏰ Zeit bis zur Deadline</span>
+                    <span id="deadlineTimeDisplay" style="font-weight: 700; color: var(--accent-primary);">--:--</span>
+                </div>
+                <div id="deadlineCountdown" style="font-family: 'Fredoka', sans-serif; font-size: 32px; font-weight: 700; text-align: center; color: var(--text-primary); margin: 12px 0;">
+                    --h --m
+                </div>
+                <div id="deadlineType" style="font-size: 13px; text-align: center; color: var(--text-secondary);">
+                    Nächster Tag: Schule
+                </div>
+            </div>
+
             <!-- Stats -->
             <div id="motivationCard"></div>
             <div class="stats-grid">
@@ -1860,7 +1887,7 @@
 
             <!-- Tasks -->
             <div class="section-header">
-                <span class="section-title"><span class="section-icon">📋</span> Deine Aufgaben</span>
+                <span class="section-title" id="tasksTitle"><span class="section-icon">📋</span> Deine Aufgaben</span>
             </div>
             <div class="task-list" id="childTaskList"></div>
 
@@ -2106,6 +2133,23 @@
                             <option value="revamp">Nur Revamps</option>
                             <option value="none">Keine</option>
                         </select>
+                    </div>
+                    
+                    <!-- Deadline Time Settings -->
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--bg-secondary);">
+                        <div class="toggle-label" style="margin-bottom: 12px;">⏰ Deadline-Zeiten für Kinder</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <label class="input-label" style="font-size: 11px;">Schultag (z.B. 19:30)</label>
+                                <input type="time" class="input-field" id="schoolDayDeadline" value="19:30" style="padding: 10px 12px; font-size: 14px;">
+                            </div>
+                            <div>
+                                <label class="input-label" style="font-size: 11px;">Frei (z.B. 20:00)</label>
+                                <input type="time" class="input-field" id="freeDayDeadline" value="20:00" style="padding: 10px 12px; font-size: 14px;">
+                            </div>
+                        </div>
+                        <button class="btn btn-accent btn-small" style="width: 100%; margin-top: 12px;" onclick="saveDeadlineSettings()">💾 Deadline-Zeiten speichern</button>
+                        <div id="deadlineSettingsStatus" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
                     </div>
                     <div id="parentEmailRow" style="display:none; margin-top:12px;">
                         <label class="input-label">Deine E-Mail-Adresse</label>
@@ -2674,6 +2718,9 @@
             } else {
                 avatar.textContent = member.name.charAt(0).toUpperCase();
             }
+
+            // Start deadline countdown
+            startDeadlineCountdown();
 
             // Get today's tasks for this child
             const today = new Date().toISOString().split('T')[0];
@@ -3706,6 +3753,7 @@
                         showScreen('parentSettingsScreen');
                         updateParentNotifStatus();
                         loadChangelogSetting();
+                        loadDeadlineSettings();
                         break;
                 }
             }
@@ -4458,6 +4506,403 @@
                 reminder_time: reminderTime,
                 family_name:   currentFamily ? currentFamily.name : 'eure Familie',
             });
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DEADLINE TIMER & SETTINGS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        // Save deadline settings to Firestore
+        async function saveDeadlineSettings() {
+            const schoolTime = document.getElementById('schoolDayDeadline').value || '19:30';
+            const freeTime = document.getElementById('freeDayDeadline').value || '20:00';
+            
+            try {
+                await db.collection('families').doc(currentUser.familyId)
+                    .update({
+                        deadlineSettings: {
+                            schoolDay: schoolTime,
+                            freeDay: freeTime,
+                            updatedAt: new Date().toISOString()
+                        }
+                    });
+                
+                document.getElementById('deadlineSettingsStatus').textContent = '✅ Deadline-Zeiten gespeichert!';
+                showToast('Deadline-Zeiten gespeichert', 'success');
+                
+                // Update current family data
+                if (currentFamily) {
+                    currentFamily.deadlineSettings = { schoolDay: schoolTime, freeDay: freeTime };
+                }
+            } catch (error) {
+                console.error('Error saving deadline settings:', error);
+                document.getElementById('deadlineSettingsStatus').textContent = '❌ Fehler beim Speichern';
+                showToast('Fehler beim Speichern', 'warning');
+            }
+        }
+
+        // Load deadline settings from Firestore
+        function loadDeadlineSettings() {
+            if (!currentFamily) return;
+            
+            const settings = currentFamily.deadlineSettings || {};
+            document.getElementById('schoolDayDeadline').value = settings.schoolDay || '19:30';
+            document.getElementById('freeDayDeadline').value = settings.freeDay || '20:00';
+            
+            const status = document.getElementById('deadlineSettingsStatus');
+            if (settings.updatedAt) {
+                status.textContent = `Zuletzt geändert: ${new Date(settings.updatedAt).toLocaleDateString('de-DE')}`;
+            } else {
+                status.textContent = 'Standard: 19:30 (Schule) / 20:00 (Frei)';
+            }
+        }
+
+        // Get deadline settings (with defaults)
+        function getDeadlineSettings() {
+            if (currentFamily && currentFamily.deadlineSettings) {
+                return {
+                    schoolDay: currentFamily.deadlineSettings.schoolDay || '19:30',
+                    freeDay: currentFamily.deadlineSettings.freeDay || '20:00'
+                };
+            }
+            return { schoolDay: '19:30', freeDay: '20:00' };
+        }
+
+        // German school holidays 2025-2026 (can be extended or loaded from Firestore)
+        const SCHOOL_VACATIONS = [
+            // Winterferien 2025
+            { name: 'Winterferien', start: '2025-02-10', end: '2025-02-14' },
+            // Osterferien 2025
+            { name: 'Osterferien', start: '2025-04-14', end: '2025-04-25' },
+            // Pfingstferien 2025
+            { name: 'Pfingstferien', start: '2025-06-09', end: '2025-06-13' },
+            // Sommerferien 2025
+            { name: 'Sommerferien', start: '2025-07-28', end: '2025-09-05' },
+            // Herbstferien 2025
+            { name: 'Herbstferien', start: '2025-10-27', end: '2025-10-31' },
+            // Weihnachtsferien 2025/2026
+            { name: 'Weihnachtsferien', start: '2025-12-22', end: '2026-01-05' },
+            // Winterferien 2026
+            { name: 'Winterferien', start: '2026-02-02', end: '2026-02-06' },
+            // Osterferien 2026
+            { name: 'Osterferien', start: '2026-03-30', end: '2026-04-10' },
+        ];
+
+        // German public holidays 2025-2026
+        const PUBLIC_HOLIDAYS = [
+            '2025-01-01', // Neujahr
+            '2025-04-18', // Karfreitag
+            '2025-04-21', // Ostermontag
+            '2025-05-01', // Tag der Arbeit
+            '2025-05-29', // Christi Himmelfahrt
+            '2025-06-09', // Pfingstmontag
+            '2025-10-03', // Tag der Deutschen Einheit
+            '2025-12-25', // 1. Weihnachtstag
+            '2025-12-26', // 2. Weihnachtstag
+            '2026-01-01', // Neujahr
+            '2026-04-03', // Karfreitag
+            '2026-04-06', // Ostermontag
+            '2026-05-01', // Tag der Arbeit
+            '2026-05-14', // Christi Himmelfahrt
+            '2026-05-25', // Pfingstmontag
+            '2026-10-03', // Tag der Deutschen Einheit
+            '2026-12-25', // 1. Weihnachtstag
+            '2026-12-26', // 2. Weihnachtstag
+        ];
+
+        // Check if a date is within any vacation period
+        function isVacation(date) {
+            const dateStr = date.toISOString().split('T')[0];
+            return SCHOOL_VACATIONS.some(v => dateStr >= v.start && dateStr <= v.end);
+        }
+
+        // Check if a date is a public holiday
+        function isPublicHoliday(date) {
+            const dateStr = date.toISOString().split('T')[0];
+            return PUBLIC_HOLIDAYS.includes(dateStr);
+        }
+
+        // Check if next day is a school day (considering weekends, holidays, and vacations)
+        function isNextDaySchool() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const dayOfWeek = tomorrow.getDay();
+            // 0 = Sunday, 6 = Saturday
+            if (dayOfWeek === 0 || dayOfWeek === 6) return false;
+            
+            // Check for public holidays
+            if (isPublicHoliday(tomorrow)) return false;
+            
+            // Check for school vacations
+            if (isVacation(tomorrow)) return false;
+            
+            return true;
+        }
+
+        // Get human-readable description of tomorrow's status
+        function getTomorrowStatus() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const dayOfWeek = tomorrow.getDay();
+            
+            // Weekend
+            if (dayOfWeek === 0) return { isSchool: false, label: 'Sonntag 🌞' };
+            if (dayOfWeek === 6) return { isSchool: false, label: 'Samstag 🎉' };
+            
+            // Check for public holidays
+            const dateStr = tomorrow.toISOString().split('T')[0];
+            if (isPublicHoliday(tomorrow)) {
+                const holidayName = getHolidayName(tomorrow);
+                return { isSchool: false, label: `${holidayName} 🎈` };
+            }
+            
+            // Check for vacations
+            const vacation = SCHOOL_VACATIONS.find(v => dateStr >= v.start && dateStr <= v.end);
+            if (vacation) {
+                return { isSchool: false, label: `${vacation.name} 🏖️` };
+            }
+            
+            return { isSchool: true, label: 'Schultag 📚' };
+        }
+
+        // Get holiday name (simplified)
+        function getHolidayName(date) {
+            const dateStr = date.toISOString().split('T')[0];
+            const names = {
+                '2025-01-01': 'Neujahr', '2026-01-01': 'Neujahr',
+                '2025-04-18': 'Karfreitag', '2026-04-03': 'Karfreitag',
+                '2025-04-21': 'Ostermontag', '2026-04-06': 'Ostermontag',
+                '2025-05-01': 'Tag der Arbeit', '2026-05-01': 'Tag der Arbeit',
+                '2025-05-29': 'Himmelfahrt', '2026-05-14': 'Himmelfahrt',
+                '2025-06-09': 'Pfingstmontag', '2026-05-25': 'Pfingstmontag',
+                '2025-10-03': 'Tag der Einheit', '2026-10-03': 'Tag der Einheit',
+                '2025-12-25': 'Weihnachten', '2026-12-25': 'Weihnachten',
+                '2025-12-26': 'Weihnachten', '2026-12-26': 'Weihnachten',
+            };
+            return names[dateStr] || 'Feiertag';
+        }
+
+        // Check if all tasks are completed for today
+        function isAllTasksCompleted() {
+            const member = familyMembers.find(m => m.id === currentUser.id);
+            if (!member) return false;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const dayOfWeek = new Date().getDay();
+            const dayNames = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+            
+            // Check if day is already finalized
+            if (member.finalizedDays && member.finalizedDays.includes(today)) {
+                return true;
+            }
+            
+            // Get today's tasks
+            const myTasks = tasks.filter(task => {
+                if (task.assignedTo && !task.assignedTo.includes(currentUser.id)) return false;
+                if (task.type === 'daily') {
+                    return !task.days || task.days.includes(dayNames[dayOfWeek]);
+                }
+                if (task.type === 'rotating') {
+                    const rotationIndex = Math.floor((Date.now() - new Date(task.createdAt).getTime()) / (1000 * 60 * 60 * 24)) % task.rotation.length;
+                    return task.rotation[rotationIndex] === currentUser.id;
+                }
+                if (task.type === 'once') {
+                    return task.dueDate === today && !task.completedAt;
+                }
+                return true;
+            });
+            
+            if (myTasks.length === 0) return false;
+            
+            // Check if all tasks completed
+            const completionKey = `${today}_${currentUser.id}`;
+            return myTasks.every(t => t.completions && t.completions[completionKey]);
+        }
+
+        // Update deadline countdown display
+        let _deadlineInterval = null;
+        
+        function updateDeadlineCountdown() {
+            const card = document.getElementById('deadlineCard');
+            const countdownEl = document.getElementById('deadlineCountdown');
+            const timeDisplayEl = document.getElementById('deadlineTimeDisplay');
+            const typeEl = document.getElementById('deadlineType');
+            const titleEl = document.getElementById('deadlineTitle');
+            
+            if (!card || !countdownEl) return;
+            
+            // Check if all tasks completed - show success message
+            if (isAllTasksCompleted()) {
+                titleEl.textContent = '🎉 Alles erledigt!';
+                countdownEl.textContent = 'Super gemacht!';
+                countdownEl.style.color = 'var(--success)';
+                countdownEl.style.fontSize = '24px';
+                timeDisplayEl.textContent = '';
+                typeEl.textContent = 'Du hast alle Aufgaben geschafft! 🏆';
+                typeEl.style.color = 'var(--success)';
+                card.style.background = 'linear-gradient(135deg, rgba(63,185,80,0.2), rgba(78,205,196,0.15))';
+                card.style.borderColor = 'var(--success)';
+                return;
+            }
+            
+            // Reset styles if not completed
+            countdownEl.style.fontSize = '32px';
+            typeEl.style.color = 'var(--text-secondary)';
+            card.style.background = 'linear-gradient(135deg, rgba(255,107,107,0.2), rgba(160,108,213,0.15))';
+            
+            const settings = getDeadlineSettings();
+            const tomorrowStatus = getTomorrowStatus();
+            const deadlineTime = tomorrowStatus.isSchool ? settings.schoolDay : settings.freeDay;
+            
+            const now = new Date();
+            const [hours, minutes] = deadlineTime.split(':').map(Number);
+            
+            // Create deadline datetime for today
+            let deadline = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
+            
+            // If deadline has passed, show "Deadline vorbei"
+            if (now > deadline) {
+                titleEl.textContent = '⏰ Deadline vorbei';
+                countdownEl.textContent = 'Zeit abgelaufen!';
+                countdownEl.style.color = 'var(--danger)';
+                timeDisplayEl.textContent = deadlineTime;
+                typeEl.textContent = `Morgen: ${tomorrowStatus.label}`;
+                card.style.borderColor = 'var(--danger)';
+                return;
+            }
+            
+            titleEl.textContent = '⏰ Zeit bis zur Deadline';
+            
+            // Calculate remaining time
+            const diffMs = deadline - now;
+            const diffH = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffM = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            
+            // Update display
+            countdownEl.textContent = `${diffH}h ${diffM}m`;
+            countdownEl.style.color = diffH < 1 ? 'var(--danger)' : 'var(--text-primary)';
+            timeDisplayEl.textContent = deadlineTime;
+            typeEl.textContent = `Morgen: ${tomorrowStatus.label}`;
+            
+            // Update card border color based on urgency
+            if (diffH < 1) {
+                card.style.borderColor = 'var(--danger)';
+            } else if (diffH < 2) {
+                card.style.borderColor = 'var(--warning)';
+            } else {
+                card.style.borderColor = 'rgba(255,107,107,0.3)';
+            }
+        }
+
+        // Start deadline countdown interval
+        function startDeadlineCountdown() {
+            if (_deadlineInterval) clearInterval(_deadlineInterval);
+            
+            // Update immediately
+            updateDeadlineCountdown();
+            
+            // Update every minute
+            _deadlineInterval = setInterval(updateDeadlineCountdown, 60000);
+        }
+
+        // Stop deadline countdown
+        function stopDeadlineCountdown() {
+            if (_deadlineInterval) {
+                clearInterval(_deadlineInterval);
+                _deadlineInterval = null;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // TEST ACCOUNT QUICK LOGIN
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        async function quickTest(role) {
+            showLoading(true);
+            
+            try {
+                // Create or get test family
+                const testFamilyId = 'test_family_demo';
+                const testFamilyName = 'Test-Familie Demo';
+                
+                // Check if test family exists, create if not
+                const familyDoc = await db.collection('families').doc(testFamilyId).get();
+                
+                if (!familyDoc.exists) {
+                    // Create test family
+                    await db.collection('families').doc(testFamilyId).set({
+                        name: testFamilyName,
+                        createdAt: new Date().toISOString(),
+                        isTestFamily: true,
+                        deadlineSettings: {
+                            schoolDay: '19:30',
+                            freeDay: '20:00',
+                            updatedAt: new Date().toISOString()
+                        }
+                    });
+                    
+                    // Create sample tasks
+                    const sampleTasks = [
+                        { title: 'Zimmer aufräumen', description: 'Spielzeug wegräumen', type: 'daily', points: 2, days: ['Mo', 'Di', 'Mi', 'Do', 'Fr'] },
+                        { title: 'Hausaufgaben machen', description: 'Schulaufgaben erledigen', type: 'daily', points: 3, days: ['Mo', 'Di', 'Mi', 'Do', 'Fr'] },
+                        { title: 'Zähne putzen', description: 'Morgens und abends', type: 'daily', points: 1, days: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'] },
+                        { title: 'Müll rausbringen', description: 'Gelber Sack', type: 'rotating', points: 2, rotation: [] }
+                    ];
+                    
+                    for (const task of sampleTasks) {
+                        await db.collection('families').doc(testFamilyId).collection('tasks').add({
+                            ...task,
+                            createdAt: new Date().toISOString(),
+                            createdBy: 'system'
+                        });
+                    }
+                }
+                
+                // Generate test user
+                const userId = 'test_' + role + '_' + Date.now();
+                const userName = role === 'parent' ? 'Test-Elternteil' : 'Test-Kind';
+                
+                // Add member to family
+                await db.collection('families').doc(testFamilyId).collection('members').doc(userId).set({
+                    name: userName,
+                    role: role,
+                    points: role === 'child' ? 42 : 0,
+                    streak: role === 'child' ? 5 : 0,
+                    tasksCompleted: role === 'child' ? 12 : 0,
+                    finalizedDays: [],
+                    achievements: role === 'child' ? ['firstTask', 'streak3'] : [],
+                    createdAt: new Date().toISOString()
+                });
+                
+                // Set current user
+                currentUser = {
+                    id: userId,
+                    familyId: testFamilyId,
+                    role: role,
+                    name: userName
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('familyTasks_user', JSON.stringify(currentUser));
+                
+                // Load family data
+                currentFamily = { id: testFamilyId, ...(await db.collection('families').doc(testFamilyId).get()).data() };
+                
+                showLoading(false);
+                showToast(`🧪 Test-Account als ${role === 'parent' ? 'Elternteil' : 'Kind'} gestartet!`, 'success');
+                
+                // Load user data and show dashboard
+                loadUserData();
+                
+            } catch (error) {
+                console.error('Quick test error:', error);
+                showLoading(false);
+                showToast('Fehler beim Test-Login: ' + error.message, 'warning');
+            }
         }
     </script>
 </body>
